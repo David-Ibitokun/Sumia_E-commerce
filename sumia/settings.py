@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentications',
     'pages',
+    'shop',
     'taggit',
     'django.contrib.humanize',
     'django_select2',

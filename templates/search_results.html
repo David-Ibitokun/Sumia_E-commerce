@@ -24,10 +24,10 @@
               </p>
               {% if product.discount_price %}
                 <div class="text-danger fw-bold">
-                  ${{ product.discount_price }} <del class="text-muted">${{ product.price }}</del>
+                  ₦{{ product.discount_price }} <del class="text-muted">₦{{ product.price }}</del>
                 </div>
               {% else %}
-                <div class="fw-bold">${{ product.price }}</div>
+                <div class="fw-bold">₦{{ product.price }}</div>
               {% endif %}
               <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline-primary mt-2">View</a>
             </div>
