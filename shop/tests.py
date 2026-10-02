@@ -154,7 +154,7 @@ class TemplateSmokeTests(ShopTestCase):
         self.login()
         for name in (
             'home', 'user_dashboard', 'my_profile', 'my_account',
-            'cart', 'wishlist', 'order_list', 'product_list', 'add_product',
+            'cart', 'wishlist', 'order_list',
         ):
             with self.subTest(page=name):
                 self.assertEqual(self.client.get(reverse(name)).status_code, 200)
@@ -171,6 +171,8 @@ class TemplateSmokeTests(ShopTestCase):
 
         pages = [
             reverse('vendor_dashboard'),
+            reverse('product_list'),
+            reverse('add_product'),
             reverse('vendor_orders'),
             reverse('vendor_order_detail', args=[order.order_number]),
             reverse('edit_product', args=[product.slug]),
@@ -544,6 +546,210 @@ class OrderTests(ShopTestCase):
         response = self.client.get(reverse('order_list'))
 
         self.assertEqual(len(response.context['orders']), 1)
+
+
+class VendorAccessControlTests(ShopTestCase):
+    """Vendor pages need a vendor account, and only ever the vendor's own rows.
+
+    `vendor_required` rejects a signed in customer with 403 and sends an
+    anonymous visitor to the login page. Ownership is enforced separately, by
+    filtering the query, so a valid vendor guessing an id still gets a 404.
+    """
+
+    def setUp(self):
+        self.other_vendor = User.objects.create_user(
+            username='other-vendor', password='pass12345', account_type='vendor'
+        )
+        self.foreign_product = Product.objects.create(
+            name='Foreign Product',
+            description='Belongs to another vendor',
+            price=1000,
+            stock_quantity=1,
+            creator=self.other_vendor,
+        )
+        self.other_shopper = User.objects.create_user(
+            username='other-shopper', password='pass12345', account_type='user'
+        )
+        # An order the signed in vendor has no line in, and an order of a
+        # customer the signed in shopper does not own.
+        self.unrelated_order = Order.objects.create(
+            user=self.shopper, total_price=1000
+        )
+        OrderItem.objects.create(
+            order=self.unrelated_order,
+            product=self.foreign_product,
+            quantity=1,
+            price_at_purchase=1000,
+        )
+        self.other_customers_order = Order.objects.create(
+            user=self.other_shopper, total_price=50000
+        )
+        OrderItem.objects.create(
+            order=self.other_customers_order,
+            product=self.phone,
+            quantity=1,
+            price_at_purchase=50000,
+        )
+
+    def vendor_urls(self):
+        """Every vendor only URL, including the ones taking an argument."""
+        return (
+            reverse('vendor_dashboard'),
+            reverse('product_list'),
+            reverse('add_product'),
+            reverse('vendor_orders'),
+            reverse('vendor_order_detail', args=[self.unrelated_order.order_number]),
+            reverse('edit_product', args=[self.foreign_product.slug]),
+            reverse('delete_product', args=[self.foreign_product.slug]),
+        )
+
+    def test_customer_cannot_access_vendor_pages(self):
+        self.login()
+        for url in self.vendor_urls():
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 403)
+
+    def test_customer_cannot_open_the_vendor_dashboard(self):
+        self.login()
+        response = self.client.get(reverse('vendor_dashboard'))
+        self.assertEqual(response.status_code, 403)
+
+    def test_customer_cannot_add_a_product(self):
+        self.login()
+        response = self.client.post(
+            reverse('add_product'),
+            {
+                'name': 'Smuggled',
+                'description': 'Not allowed',
+                'price': '1000',
+                'stock_quantity': '1',
+                'image': image('smuggled.png'),
+                'category': self.phones.pk,
+                'brand_name': 'Sumia',
+            },
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(Product.objects.filter(name='Smuggled').exists())
+
+    def test_anonymous_users_are_redirected_to_login(self):
+        for url in self.vendor_urls():
+            with self.subTest(url=url):
+                response = self.client.get(url)
+
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(
+                    response.url, f'{reverse("login")}?next={url}'
+                )
+
+    def test_anonymous_users_cannot_reach_any_private_page(self):
+        private_urls = [
+            reverse('vendor_dashboard'),
+            reverse('user_dashboard'),
+            reverse('my_profile'),
+            reverse('my_account'),
+            reverse('product_list'),
+            reverse('add_product'),
+            reverse('vendor_orders'),
+            reverse('order_list'),
+            reverse('wishlist'),
+            reverse('checkout'),
+            reverse('order_detail', args=[self.other_customers_order.order_number]),
+        ]
+
+        for url in private_urls:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(
+                    response.url, f'{reverse("login")}?next={url}'
+                )
+
+    def test_vendor_cannot_edit_another_vendors_product(self):
+        self.login(self.vendor)
+
+        response = self.client.get(
+            reverse('edit_product', args=[self.foreign_product.slug])
+        )
+        self.assertEqual(response.status_code, 404)
+
+        post = self.client.post(
+            reverse('edit_product', args=[self.foreign_product.slug]),
+            {
+                'name': 'Hijacked',
+                'description': 'Rewritten',
+                'price': '1',
+                'stock_quantity': '1',
+            },
+        )
+        self.assertEqual(post.status_code, 404)
+
+        self.foreign_product.refresh_from_db()
+        self.assertEqual(self.foreign_product.name, 'Foreign Product')
+        self.assertEqual(self.foreign_product.creator, self.other_vendor)
+
+    def test_vendor_cannot_delete_another_vendors_product(self):
+        self.login(self.vendor)
+        url = reverse('delete_product', args=[self.foreign_product.slug])
+
+        self.assertEqual(self.client.get(url).status_code, 404)
+        self.assertEqual(self.client.post(url).status_code, 404)
+        self.assertTrue(Product.objects.filter(pk=self.foreign_product.pk).exists())
+
+    def test_vendor_cannot_access_unrelated_order_information(self):
+        self.login(self.vendor)
+        response = self.client.get(
+            reverse('vendor_order_detail', args=[self.unrelated_order.order_number])
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertNotContains(response, 'Foreign Product', status_code=404)
+
+    def test_unrelated_orders_are_absent_from_the_vendor_order_list(self):
+        self.login(self.vendor)
+        response = self.client.get(reverse('vendor_orders'))
+
+        order_numbers = [order.order_number for order in response.context['orders']]
+        self.assertNotIn(self.unrelated_order.order_number, order_numbers)
+        self.assertEqual(order_numbers, [self.other_customers_order.order_number])
+        self.assertEqual(
+            response.context['orders'].get().vendor_total_amount, 50000
+        )
+
+    def test_vendor_cannot_read_a_customers_order_through_the_vendor_route(self):
+        """The order the vendor does sell into is still not a customer order."""
+        self.login(self.vendor)
+        response = self.client.get(
+            reverse(
+                'vendor_order_detail', args=[self.other_customers_order.order_number]
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            [item.product.name for item in response.context['vendor_order_items']],
+            ['Test Phone'],
+        )
+        self.assertEqual(response.context['vendor_total_price'], 50000)
+
+    def test_user_cannot_view_another_users_order(self):
+        self.login()
+        response = self.client.get(
+            reverse('order_detail', args=[self.other_customers_order.order_number])
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_customer_cannot_see_another_customers_orders_in_the_list(self):
+        self.login()
+
+        response = self.client.get(reverse('order_list'))
+
+        self.assertEqual(
+            [order.order_number for order in response.context['orders']],
+            [self.unrelated_order.order_number],
+        )
 
 
 class NavigationCategoryCacheTests(ShopTestCase):

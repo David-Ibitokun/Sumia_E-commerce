@@ -4,7 +4,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from .forms import UsersRegistrationForm, CustomAuthenticationForm
-from pages.models import Product
+from pages.decorators import customer_required, vendor_required
+from shop.services import dashboard as dashboard_service
 
 
 def register_user(request):
@@ -49,26 +50,24 @@ def logout_user(request):
     return redirect('login')
 
 
-@login_required(login_url='login')
+@customer_required
 def user_dashboard(request):
     """Landing page for a shopper account."""
-    if request.user.account_type != 'user':
-        messages.warning(request, "You do not have permission to view this page.")
-        return redirect('vendor_dashboard')
-    return render(request, 'accounts/user_dashboard.html')
-
-
-@login_required(login_url='login')
-def vendor_dashboard(request):
-    """Landing page for a vendor account, listing the products they created."""
-    if request.user.account_type != 'vendor':
-        messages.warning(request, "You do not have permission to view this page.")
-        return redirect('user_dashboard')
-
-    products = Product.objects.filter(creator=request.user).select_related(
-        'category', 'brand'
+    return render(
+        request,
+        'accounts/user_dashboard.html',
+        dashboard_service.customer_stats(request.user),
     )
-    return render(request, 'vendor/dashboard.html', {'products': products})
+
+
+@vendor_required
+def vendor_dashboard(request):
+    """Landing page for a vendor account: headline figures plus recent activity."""
+    return render(
+        request,
+        'vendor/dashboard.html',
+        dashboard_service.vendor_stats(request.user),
+    )
 
 
 @login_required(login_url='login')

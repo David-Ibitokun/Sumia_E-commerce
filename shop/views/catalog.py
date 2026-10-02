@@ -4,10 +4,10 @@
 only deal with ownership, persistence and user feedback.
 """
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 
+from pages.decorators import vendor_required
 from pages.models import Product
 
 from shop.forms import ProductForm
@@ -39,14 +39,14 @@ def category_selection(form, product=None):
     }
 
 
-@login_required(login_url='login')
+@vendor_required
 def product_list(request):
     """Products created by the signed in vendor."""
     products = Product.objects.filter(creator=request.user).order_by('-created_at')
     return render(request, 'vendor/product_list.html', {'products': products})
 
 
-@login_required(login_url='login')
+@vendor_required
 def add_product(request):
     """Create a product owned by the signed in vendor."""
     form = ProductForm(request.POST or None, request.FILES or None)
@@ -72,7 +72,7 @@ def add_product(request):
     )
 
 
-@login_required(login_url='login')
+@vendor_required
 def edit_product(request, slug):
     """Update one of the signed in vendor's products."""
     product = get_object_or_404(Product, slug=slug, creator=request.user)
@@ -99,7 +99,7 @@ def edit_product(request, slug):
     )
 
 
-@login_required(login_url='login')
+@vendor_required
 def delete_product(request, slug):
     """Confirm and delete one of the signed in vendor's products."""
     product = get_object_or_404(Product, slug=slug, creator=request.user)

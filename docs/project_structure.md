@@ -31,6 +31,7 @@ inside the views.
 │   ├── admin.py
 │   ├── apps.py                 # Connects the cache invalidation signals
 │   ├── context_processors.py   # Cached navigation category tree
+│   ├── decorators.py           # vendor_required access control
 │   ├── management/commands/    # populate_categories
 │   ├── models.py               # Category, Brand, Product, Cart, Wishlist, Order
 │   ├── migrations/
@@ -47,6 +48,7 @@ inside the views.
 │   │   ├── cart.py             # Cart mutations, totals, stock rules
 │   │   ├── catalog.py          # Product queries, related items, search
 │   │   ├── categories.py       # Category tree: descendants, breadcrumbs
+│   │   ├── dashboard.py        # Headline figures for both dashboards
 │   │   ├── exceptions.py       # Domain errors the views translate to messages
 │   │   ├── orders.py           # Atomic order placement, order queries
 │   │   └── wishlist.py         # Wishlist mutations and counts
@@ -151,6 +153,31 @@ field, so views no longer read it out of `request.POST` by hand.
 - `shop.views.catalog.category_selection` resolves which category and which
   top level panel the vendor form should open, so re-rendering a form after a
   validation error no longer loses the shopper's pick.
+
+### Vendor access is role checked, not just login checked
+- `pages.decorators` exposes `account_required(account_type)` with
+  `vendor_required` and `customer_required` built on it. It redirects anonymous
+  visitors to the login page (`next` preserved) and raises `PermissionDenied`
+  (403) for a signed in account of the wrong type, so `login_required`'s
+  "logged in" is never mistaken for "is a vendor". Both dashboards use it, so
+  neither leaks into the other.
+- Ownership is a separate, query-level check: `edit_product` and `delete_product`
+  fetch with `creator=request.user`, and `shop.services.orders.get_vendor_order`
+  resolves the order through the vendor's own `OrderItem` rows. An id belonging
+  to someone else is a 404, not a 403, which also avoids confirming that the
+  record exists.
+- The customer facing `order_detail` keeps its own ownership filter, so the vendor
+  route and the customer route cannot be used to read the same order.
+
+### Dashboards read their figures from one place
+- `shop.services.dashboard` returns a plain dict of named counts per account, so
+  neither template counts rows itself and neither can widen a query by accident.
+- Vendor revenue and units sold come from the vendor's own `OrderItem` rows and
+  exclude cancelled orders, so they can never include another vendor's lines.
+  Cancelled orders stay visible in the order *list* — a vendor still needs to see
+  that they happened.
+- `shop.services.orders.orders_for_vendor` is shared by the vendor order list,
+  the order detail lookup and the dashboard, so the scoping rule exists once.
 
 ### Consistent naming
 Views, functions, URL names and template files are `snake_case`

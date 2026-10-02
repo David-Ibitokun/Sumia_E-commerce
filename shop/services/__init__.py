@@ -8,6 +8,7 @@ Modules:
     categories  category tree lookups (descendants, breadcrumbs)
     catalog     product queries (listing, detail, related, search)
     cart        cart mutations and totals
+    dashboard   headline figures for the two role dashboards
     orders      order placement and order queries
     wishlist    wishlist mutations and counts
     exceptions  domain errors the views translate into messages
