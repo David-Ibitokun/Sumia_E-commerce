@@ -1,0 +1,52 @@
+{# Category picker for the vendor product forms.
+
+   Expects: form, selected_category_id, selected_parent_id, top_level_categories
+   (the three context values come from shop.views.catalog.category_selection). #}
+<div class="mb-4 border rounded-4 p-4 bg-light shadow-sm">
+  <h5 class="mb-3 fw-bold text-uppercase text-dark">Select Category</h5>
+
+  {% if form.category.errors %}
+    <div class="text-danger small mb-3">{{ form.category.errors }}</div>
+  {% endif %}
+
+  <div class="accordion" id="categoryAccordion">
+    {% for parent in top_level_categories %}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading-{{ parent.slug }}">
+          <button class="accordion-button {% if selected_parent_id == parent.id %}show{% else %}collapsed{% endif %}"
+                  type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapse-{{ parent.slug }}" aria-expanded="false"
+                  aria-controls="collapse-{{ parent.slug }}">
+            {% if parent.icon %}<i class="{{ parent.icon }}"></i>{% endif %}
+            {{ parent.name }}
+          </button>
+        </h2>
+        <div id="collapse-{{ parent.slug }}"
+             class="accordion-collapse collapse {% if selected_parent_id == parent.id %}show{% endif %}"
+             aria-labelledby="heading-{{ parent.slug }}"
+             data-bs-parent="#categoryAccordion">
+          <div class="accordion-body ps-4">
+            {% for subcat in parent.subcategories.all %}
+              <div class="category-choice mb-2" data-category-id="{{ subcat.id }}">
+                <input class="form-check-input visually-hidden"
+                       type="radio"
+                       name="category"
+                       id="subcat-{{ subcat.id }}"
+                       value="{{ subcat.id }}"
+                       {% if selected_category_id == subcat.id %}checked{% endif %}>
+                <label class="form-check-label w-100" for="subcat-{{ subcat.id }}">
+                  {% if subcat.icon %}<i class="{{ subcat.icon }}"></i>{% endif %}
+                  {{ subcat.name }}
+                </label>
+              </div>
+            {% empty %}
+              <p class="text-muted small mb-0">No subcategory yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted small mb-0">No category is available yet.</p>
+    {% endfor %}
+  </div>
+</div>

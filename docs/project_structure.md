@@ -2,142 +2,162 @@
 
 ## Overview
 
-The **Sumia** e-commerce platform is a Django-based web application organized into several modular Python packages and template directories.
+The **Sumia** e-commerce platform is a Django web application split into four
+apps. Each app owns one area of the domain, keeps its views in a small package
+grouped by feature, and puts its business logic in a service layer instead of
+inside the views.
+
+| App | Responsibility |
+|-----|----------------|
+| `pages` | Shared domain models (catalog, cart, orders) and public pages |
+| `shop` | Storefront, cart, checkout, wishlist, search, vendor tools |
+| `authentications` | Custom user model, login/logout, registration, dashboards |
+| `sumia` | Project settings, root URLconf and WSGI/ASGI entry points |
 
 ## Directory Layout
 
 ```
 .
-├── .git/                    # Git repository
-├── .kilo/                   # Worktree snapshots (alternate versions)
-├── authentications/         # User authentication & authorization
-│   ├── models.py            # User and vendor models
-│   ├── forms.py             # Authentication forms
-│   ├── urls.py              # Auth routes
-│   └── views.py             # Authentication views
-├── data.json                # Application data (catalog, etc.)
-├── deployment.yaml          # Deployment configuration
-├── docs/                    # Documentation
-│   ├── scope.md            # Project scope definition
-│   └── project_structure.md # This file
-├── fixtures/                # Test fixtures
-├── manage.py               # Django command-line utility
-├── migration.bat           # Migration helper script
-├── markdown/               # Markdown assets (if any)
-├── requirements.txt         # Python dependencies
-├── run_server.bat          # Server startup script
-├── schemas/                 # Data schemas (if any)
-├── static/                  # Static files (CSS, JS, images)
-├── templates/               # Base templates and page templates
-│   ├── base.html           # Master layout
-│   ├── index.html          # Home page
-│   ├── shop.html           # Main shop view
-│   ├── product_detail.html # Individual product view
-│   ├── category_detail.html# Category detail page
-│   ├── cart.html           # Shopping cart
-│   ├── login.html          # Authentication page
-│   ├── register.html       # User registration
-│   ├── checkout.html       # Order placement
-│   ├── vendor_dashboard.html # Vendor management
-│   └── ... (more templates)
-├── pages/                   # Page-level views (custom pages)
-│   ├── admin.py            # Admin site configuration
-│   ├── apps.py             # App registry
-│   ├── context_processors.py
-│   ├── management/
-│   │   └── commands/
-│   ├── models.py           # Shared models
-│   ├── templates/
-│   │   ├── admin.py        # Admin templates
-│   │   ├── product_list.html
-│   │   ├── brand_detail.html
-│   │   ├── cart.html
-│   │   ├── order_detail.html
-│   │   └── ...
-│   ├── templatetags/
-│   └── tests.py
-├── sumia/                  # Main Django application package
-│   ├── __init__.py
-│   ├── asgi.py             # ASGI entry point
-│   ├── settings.py         # Django settings
-│   ├── urls.py             # Root URL routing
-│   ├── wsgi.py             # WSGI entry point
-│   ├── apps.py             # App registry
-│   ├── models.py           # Core models (User, Product, Category, etc.)
-│   ├── views.py            # Generic views
-│   ├── management/
-│   │   └── commands/
-│   └── templates/          # App-specific templates
-│       ├── base.html
-│       ├── shop.html
-│       ├── product_detail.html
-│       ├── category_detail.html
-│       ├── cart.html
-│       ├── order_detail.html
-│       └── ...
-├── shop/                    # Shop-specific functionality
-│   ├── __init__.py
-│   ├── apps.py
-│   ├── models.py
-│   ├── forms.py
+├── authentications/            # Accounts, roles and dashboards
+│   ├── admin.py
+│   ├── forms.py                # Registration and login forms
+│   ├── models.py               # UsersRegistration (AUTH_USER_MODEL)
 │   ├── urls.py
-│   ├── views.py
-│   └── migrations/
-├── authentications/        # Repeated auth module (shared)
-├── STYLING_GUIDE.md        # CSS/UI styling guidelines
-├── verification/           # Verification scripts (if any)
-└── scripts/                # Utility scripts
-    ├── populate_categories.bat
-    ├── generate_inventory.bat
-    └── ...
+│   └── views.py
+├── docs/                       # scope.md, project_structure.md
+├── manage.py
+├── media/                      # Uploaded product and brand images
+├── pages/                      # Domain models + public pages
+│   ├── admin.py
+│   ├── apps.py                 # Connects the cache invalidation signals
+│   ├── context_processors.py   # Cached navigation category tree
+│   ├── management/commands/    # populate_categories
+│   ├── models.py               # Category, Brand, Product, Cart, Wishlist, Order
+│   ├── migrations/
+│   ├── signals.py              # Invalidates the category tree cache
+│   ├── templatetags/
+│   ├── tests.py
+│   ├── urls.py
+│   └── views/
+│       ├── account.py          # my_account
+│       └── public.py           # home, about, contact, error pages
+├── shop/                       # Everything the storefront needs
+│   ├── forms.py                # ProductForm, CheckoutForm
+│   ├── services/               # Business logic, no HTTP involved
+│   │   ├── cart.py             # Cart mutations, totals, stock rules
+│   │   ├── catalog.py          # Product queries, related items, search
+│   │   ├── categories.py       # Category tree: descendants, breadcrumbs
+│   │   ├── exceptions.py       # Domain errors the views translate to messages
+│   │   ├── orders.py           # Atomic order placement, order queries
+│   │   └── wishlist.py         # Wishlist mutations and counts
+│   ├── tests.py
+│   ├── urls.py
+│   └── views/
+│       ├── ajax.py             # JSON endpoints for ajax_ecommerce.js
+│       ├── cart.py             # Cart page and cart mutations
+│       ├── catalog.py          # Vendor product CRUD
+│       ├── checkout.py         # Shipping form and order placement
+│       ├── orders.py           # Customer order history
+│       ├── public.py           # Shop, product, category, brand pages
+│       ├── search.py           # Search results page
+│       ├── utils.py            # redirect_back, json_error
+│       ├── vendors.py          # Vendor scoped order views
+│       └── wishlist.py         # Wishlist page and mutations
+├── static/
+│   └── js/ajax_ecommerce.js    # Progressive enhancement for cart/wishlist/search
+├── sumia/                      # Django project package
+│   ├── settings.py
+│   └── urls.py                 # Root routes and error handlers
+├── templates/                  # All templates, grouped by the area they serve
+│   ├── base.html               # The only shared layout; every page extends it
+│   ├── accounts/               # Authentication and account screens
+│   │   ├── login.html
+│   │   ├── my_account.html
+│   │   ├── my_profile.html
+│   │   ├── register.html
+│   │   └── user_dashboard.html
+│   ├── catalog/                # Browsing: everything a shopper can look at
+│   │   ├── brand_detail.html
+│   │   ├── brand_list.html
+│   │   ├── category_detail.html
+│   │   ├── product_detail.html
+│   │   ├── search_results.html
+│   │   ├── shop.html
+│   │   └── wishlist.html
+│   ├── checkout/               # cart, checkout
+│   ├── errors/                 # 404, 500, 503
+│   ├── orders/                 # order_list, order_detail
+│   ├── pages/                  # index, about, contact
+│   └── vendor/
+│       ├── add_product.html
+│       ├── dashboard.html
+│       ├── delete_product_confirm.html
+│       ├── edit_product.html
+│       ├── order_detail.html
+│       ├── orders.html
+│       ├── partials/           # Fragments shared by the product forms
+│       │   └── category_selector.html
+│       └── product_list.html
+├── requirements.txt
+├── run_server.bat
+└── venv/
 ```
 
-## Key Components
+## Template Conventions
 
-### 1. **Core Applications**
-- **`sumia/`** – Main Django project package containing:
-  - `models.py` – Core domain models (User, Product, Category, Order, etc.)
-  - `views.py` – Business logic and HTTP response handling
-  - `urls.py` – Route definitions
-  - `settings.py` – Configuration (database, static files, third-party services)
+- **One directory per area, name after the view.** A view called `order_list`
+  renders `orders/order_list.html`; `edit_product` renders
+  `vendor/edit_product.html`. There are no historical names such as
+  `recent_orders.html` or `myAccount.html` left in the tree.
+- **`base.html` is the only shared layout.** Every page extends it and fills the
+  `content` block; markup shared between two pages becomes a partial under
+  `partials/` (currently only `vendor/partials/category_selector.html`).
+- **Templates stay dumb.** They format context that a view prepared; a template
+  never walks the category tree or recomputes a total.
 
-- **`shop/`** – Shop-specific features:
-  - Product catalog management
-  - Cart and wishlist functionality
-  - Order processing and fulfillment
-  - Vendor dashboard
+## Architecture Notes
 
-- **`authentications/`** – User management:
-  - Registration, login, password management
-  - Role-based access control (customer vs. vendor)
-  - Session handling
+### Views are thin, services hold the rules
+A view resolves the request, calls one or two service functions and renders the
+result. Rules such as "how many units of a product may be added" live once in
+`shop/services/cart.py` instead of being duplicated between the HTML form view
+and the AJAX view.
 
-### 2. **Templates**
-- **Base templates** (`templates/`) – Shared layout, navigation, breadcrumbs
-- **Page templates** (`pages/`) – Dynamic content rendered per request
-- **App templates** (`sumia/templates/`) – Context-specific rendering
+### Domain errors instead of blanket `except Exception`
+Services raise `InvalidQuantityError`, `OutOfStockError`,
+`ProductUnavailableError` and `InsufficientStockError` (all subclasses of
+`ShopServiceError`). Views catch `ShopServiceError` and turn it into a message,
+so a real database or programming error is no longer swallowed.
 
-### 3. **Configuration & Deployment**
-- `deployment.yaml` – Production deployment settings
-- `requirements.txt` – Python dependencies (Django, django-taggit, jazzmin, etc.)
-- `manage.py` – Standard Django CLI entry point
-- `.gitignore` – Excludes build artifacts, cache, and secret files
+### Order placement is atomic
+`shop.services.orders.create_order` locks and decrements stock, snapshots prices
+onto `OrderItem` and clears the cart inside one transaction. A failure leaves the
+cart untouched and no half-placed order behind.
 
-### 4. **Documentation**
-- `docs/scope.md` – Project scope and feature list
-- `docs/project_structure.md` – This file
-- `STYLING_GUIDE.md` – UI/UX design guidelines
+### Forms own validation
+`CheckoutForm` validates the shipping and payment fields (including refusing
+payment methods the storefront has not integrated yet) and returns the cleaned
+values through `shipping_data()`. `ProductForm` already provides the `category`
+field, so views no longer read it out of `request.POST` by hand.
 
-## Technology Stack
+### Category queries run once
+- The navigation tree is cached in `pages.context_processors` and invalidated
+  by `pages.signals` whenever a category is saved or deleted.
+- The subtree of a category is read with a single query and walked in memory
+  (`shop.services.categories.descendant_ids`) instead of one recursive query per
+  level, per request.
+- Breadcrumbs are built from categories fetched with `select_related` parents,
+  and listings use `select_related` for category and brand.
+- `shop.views.catalog.category_selection` resolves which category and which
+  top level panel the vendor form should open, so re-rendering a form after a
+  validation error no longer loses the shopper's pick.
 
-| Layer | Technology |
-|-------|------------|
-| Framework | Django 4.2+ |
-| Frontend | HTML5, CSS3, Bootstrap 5, Select2 |
-| Tagging | django-taggit + Select2.js |
-| Admin | Django admin with Jazzmin theme |
-| Static Files | Pillow (image processing) |
-| Deployment | ASGI (Daphne/uvicorn) |
+### Consistent naming
+Views, functions, URL names and template files are `snake_case`
+(`my_account` → `accounts/my_account.html`, `product_detail` →
+`catalog/product_detail.html`, `order_list` → `orders/order_list.html`). Two
+legacy route names remain as aliases for older bookmarks: `singleProduct`
+(`/products/<slug>/`) and `myAccount` (`/myAccount/`).
 
 ## Development Flow
 
@@ -145,7 +165,7 @@ The **Sumia** e-commerce platform is a Django-based web application organized in
 2. **Virtual Environment** → `python -m venv venv`
 3. **Install Dependencies** → `pip install -r requirements.txt`
 4. **Apply Migrations** → `python manage.py migrate`
-5. **Create Superuser** → `python manage.py createsuperuser`
-6. **Run Server** → `python manage.py runserver`
-
----
+5. **Seed categories** (optional) → `python manage.py populate_categories`
+6. **Create Superuser** → `python manage.py createsuperuser`
+7. **Run Tests** → `python manage.py test`
+8. **Run Server** → `python manage.py runserver`

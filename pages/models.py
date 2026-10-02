@@ -183,7 +183,7 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('singleProduct', kwargs={'slug': self.slug})
+        return reverse('product_detail', kwargs={'slug': self.slug})
 
     def get_discount_percent(self):
         if self.discount_price and self.price:
@@ -243,8 +243,9 @@ class Order(models.Model):
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
     ]
+    PAYMENT_METHOD_COD = 'COD'
     PAYMENT_METHOD_CHOICES = [
-        ('COD', 'Cash on Delivery'),
+        (PAYMENT_METHOD_COD, 'Cash on Delivery'),
         ('Card', 'Credit/Debit Card'),
         ('Bank Transfer', 'Bank Transfer'),
     ]

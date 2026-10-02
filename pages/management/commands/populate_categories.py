@@ -31,16 +31,10 @@ class Command(BaseCommand):
                 return
 
             for subcat_name in subcat_list:
-                # Add this print statement for debugging, keep it if you want, remove it otherwise
-                # self.stdout.write(self.style.NOTICE(f'Attempting to create/get subcategory: "{subcat_name}" under parent "{parent_name}"'))
-                try:
-                    subcat, created = Category.objects.get_or_create(name=subcat_name, parent=parent)
-                    if created:
-                        self.stdout.write(self.style.SUCCESS(f'  Created subcategory: {subcat_name} under {parent_name}'))
-                        total_new_categories += 1
-                except Exception as e:
-                    self.stdout.write(self.style.ERROR(f'ERROR creating "{subcat_name}" under "{parent_name}": {e}'))
-                    raise # Re-raise to show the full traceback
+                _, created = Category.objects.get_or_create(name=subcat_name, parent=parent)
+                if created:
+                    self.stdout.write(self.style.SUCCESS(f'  Created subcategory: {subcat_name} under {parent_name}'))
+                    total_new_categories += 1
 
         self.stdout.write(self.style.HTTP_INFO('Processing subcategories...'))
 

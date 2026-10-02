@@ -66,14 +66,14 @@
                                     </p>
                                     <div class="mt-auto d-flex justify-content-between align-items-center">
                                         {% if product.is_available and product.stock_quantity > 0 %}
-                                            <form action="{% url 'add_to_cart' product.id %}" method="post" class="d-inline">
+                                            <form action="{% url 'add_to_cart' product.id %}" method="post" class="ajax-add-to-cart d-inline" data-ajax-url="{% url 'ajax_add_to_cart' product.id %}">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="quantity" value="1">
                                                 <button type="submit" class="btn btn-warning btn-sm rounded-pill px-3">
                                                     <i class="fas fa-shopping-cart me-1"></i> Add to Cart
                                                 </button>
                                             </form>
-                                            <a href="{% url 'add_to_wishlist' product.id %}" class="btn btn-outline-danger btn-sm rounded-pill" title="Add to Wishlist">
+                                            <a href="{% url 'add_to_wishlist' product.id %}" class="ajax-add-to-wishlist btn btn-outline-danger btn-sm rounded-pill" title="Add to Wishlist" data-ajax-url="{% url 'ajax_add_to_wishlist' product.id %}">
                                                 <i class="far fa-heart"></i>
                                             </a>
                                         {% else %}

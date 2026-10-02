@@ -13,6 +13,7 @@
         </div>
 
         {% if cart_items %}
+        <div class="cart-table-wrap">
         <div class="row g-4">
             <!-- Cart Items -->
             <div class="col-lg-8">
@@ -31,7 +32,7 @@
                             </thead>
                             <tbody>
                                 {% for item in cart_items %}
-                                <tr>
+                                <tr class="cart-item-row">
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <a href="{% url 'product_detail' item.product.slug %}" class="me-3">
@@ -56,19 +57,19 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <form action="{% url 'update_cart_quantity' item.id %}" method="post" class="d-flex align-items-center">
+                                        <form action="{% url 'update_cart_quantity' item.id %}" method="post" class="ajax-update-cart d-flex align-items-center" data-ajax-url="{% url 'ajax_update_cart_quantity' item.id %}">
                                             {% csrf_token %}
                                             <div class="input-group input-group-sm" style="width: 120px;">
-                                                <button type="button" class="btn btn-outline-secondary btn-number" data-type="minus" data-item-id="{{ item.id }}"><i class="fas fa-minus"></i></button>
+                                                <button type="button" class="btn btn-outline-secondary btn-number" data-type="minus"><i class="fas fa-minus"></i></button>
                                                 <input type="text" name="quantity" class="form-control text-center input-number" value="{{ item.quantity }}" min="1" max="{{ item.product.stock_quantity }}">
-                                                <button type="button" class="btn btn-outline-secondary btn-number" data-type="plus" data-item-id="{{ item.id }}"><i class="fas fa-plus"></i></button>
+                                                <button type="button" class="btn btn-outline-secondary btn-number" data-type="plus"><i class="fas fa-plus"></i></button>
                                             </div>
                                             <button type="submit" class="btn btn-info btn-sm ms-2 rounded-pill">Update</button>
                                         </form>
                                     </td>
-                                    <td class="fw-bold">₦{{ item.get_total_price|intcomma }}</td>
+                                    <td class="fw-bold item-subtotal">₦{{ item.get_total_price|intcomma }}</td>
                                     <td>
-                                        <form action="{% url 'remove_from_cart' item.id %}" method="post">
+                                        <form action="{% url 'remove_from_cart' item.id %}" method="post" class="ajax-remove-from-cart" data-ajax-url="{% url 'ajax_remove_from_cart' item.id %}">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle" title="Remove">
                                                 <i class="fas fa-trash"></i>
@@ -83,33 +84,33 @@
                 </div>
             </div>
 
-            
-<!-- Cart Summary -->
-<div class="col-lg-4">
-    <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-body p-4">
-            <h4 class="fw-bold mb-4">Cart Summary</h4>
-            <ul class="list-group list-group-flush mb-4">
-                <li class="list-group-item d-flex justify-content-between px-0">
-                    Subtotal
-                    <span class="fw-bold">₦{{ total_price|intcomma }}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between px-0">
-                    Shipping
-                    <span class="text-success">Free</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between px-0 fw-bold fs-5 text-primary">
-                    Total
-                    <span>₦{{ total_price|intcomma }}</span>
-                </li>
-            </ul>
-            <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg rounded-pill w-100 shadow-sm">
-                Proceed to Checkout <i class="fas fa-arrow-right ms-2"></i>
-            </a>
-        </div>
-    </div>
-</div>
+            <!-- Cart Summary -->
+            <div class="cart-summary-wrap col-lg-4">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">Cart Summary</h4>
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                Subtotal
+                                <span class="fw-bold">₦{{ total_price|intcomma }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                Shipping
+                                <span class="text-success">Free</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0 fw-bold fs-5 text-primary">
+                                Total
+                                <span class="cart-total-display">₦{{ total_price|intcomma }}</span>
+                            </li>
+                        </ul>
+                        <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg rounded-pill w-100 shadow-sm">
+                            Proceed to Checkout <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
 
+        </div>
         </div>
         {% else %}
         <div class="text-center py-5">

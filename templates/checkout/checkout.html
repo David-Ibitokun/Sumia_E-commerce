@@ -67,7 +67,7 @@
                         <h5 class="mb-0"><i class="fas fa-truck me-2"></i> Shipping & Payment</h5>
                     </div>
                     <div class="card-body p-4">
-                        <form method="post">
+                        <form method="post" novalidate>
                             {% csrf_token %}
 
                             {% if messages %}
@@ -79,48 +79,65 @@
                                 {% endfor %}
                             {% endif %}
 
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger rounded-3" role="alert">
+                                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+
                             <h6 class="fw-bold mb-3 text-dark">Shipping Information</h6>
+
                             <div class="mb-3">
-                                <label for="id_address" class="form-label">Address</label>
-                                <input type="text" class="form-control rounded-pill" id="id_address" name="address" 
-                                       value="{{ request.user.address|default:'' }}" required>
+                                <label for="{{ form.address.id_for_label }}" class="form-label">{{ form.address.label }}</label>
+                                {{ form.address }}
+                                {% for error in form.address.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
                             </div>
                             <div class="mb-3">
-                                <label for="id_city" class="form-label">City</label>
-                                <input type="text" class="form-control rounded-pill" id="id_city" name="city" 
-                                       value="{{ request.user.city|default:'' }}" required>
+                                <label for="{{ form.city.id_for_label }}" class="form-label">{{ form.city.label }}</label>
+                                {{ form.city }}
+                                {% for error in form.city.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
                             </div>
                             <div class="row mb-4">
                                 <div class="col-md-6 mb-3 mb-md-0">
-                                    <label for="id_zip_code" class="form-label">Zip Code</label>
-                                    <input type="text" class="form-control rounded-pill" id="id_zip_code" name="zip_code" 
-                                           value="{{ request.user.zip_code|default:'' }}">
+                                    <label for="{{ form.zip_code.id_for_label }}" class="form-label">{{ form.zip_code.label }}</label>
+                                    {{ form.zip_code }}
+                                    {% for error in form.zip_code.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.country.id_for_label }}" class="form-label">{{ form.country.label }}</label>
+                                    {{ form.country }}
+                                    {% for error in form.country.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="id_country" class="form-label">Country</label>
-                                    <input type="text" class="form-control rounded-pill" id="id_country" name="country" 
-                                           value="{{ request.user.country|default:'' }}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="phone_number" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control rounded-pill px-3 py-2" id="phone_number" name="phone_number" value="{{ phone_number }}" placeholder="e.g., +1234567890" required>
+                                    <label for="{{ form.phone_number.id_for_label }}" class="form-label">{{ form.phone_number.label }}</label>
+                                    {{ form.phone_number }}
+                                    {% for error in form.phone_number.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
                                 </div>
                             </div>
 
-                            <h6 class="fw-bold mb-3 text-dark">Payment Method</h6>
+                            <h6 class="fw-bold mb-3 text-dark">{{ form.payment_method.label }}</h6>
                             <div class="mb-4">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="payment_method" id="payment_cod" value="COD" checked>
-                                    <label class="form-check-label" for="payment_cod">
-                                        Cash on Delivery
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="payment_method" id="payment_card" value="Card" disabled>
-                                    <label class="form-check-label text-muted" for="payment_card">
-                                        Credit/Debit Card (Coming Soon)
-                                    </label>
-                                </div>
+                                {% for radio in form.payment_method %}
+                                    <div class="form-check mb-2">
+                                        <div class="form-check">
+                                            {{ radio.tag }}
+                                            <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                {% for error in form.payment_method.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
                             </div>
 
                             <div class="d-grid">

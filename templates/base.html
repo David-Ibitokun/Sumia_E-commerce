@@ -118,7 +118,7 @@
       </div>
 
       <div class="col d-none d-lg-block">
-        <form class="d-flex align-items-center bg-light rounded-pill px-3" action="{% url 'search' %}" method="GET">
+        <form class="d-flex align-items-center bg-light rounded-pill px-3 position-relative" action="{% url 'search' %}" method="GET">
           <select name="category" class="form-select border-0 bg-transparent w-auto me-2">
             <option value="">All Categories</option>
             {% for parent in top_level_categories %}
@@ -127,8 +127,8 @@
               </option>
             {% endfor %}
           </select>
-          <input type="text" name="q" class="form-control border-0 bg-transparent"
-                     placeholder="Search for products..." value="{{ request.GET.q|default:'' }}">
+          <input type="text" name="q" class="form-control border-0 bg-transparent ajax-search-input"
+                 placeholder="Search for products..." value="{{ request.GET.q|default:'' }}" autocomplete="off">
           <button type="submit" class="btn border-0 bg-transparent text-primary">
             <svg width="24" height="24"><use xlink:href="#search"></use></svg>
           </button>
@@ -150,20 +150,38 @@
         <ul class="list-unstyled d-flex m-0 gap-2 align-items-center">
           <li>
             <a href="{% if user.is_authenticated %}
-                         {% if user.account_type == 'user' %}{% url 'user_dashboard' %}
-                         {% elif user.account_type == 'vendor' %}{% url 'vendor_dashboard' %}
-                         {% else %}{% url 'login' %}{% endif %}
-                       {% else %}
-                         {% url 'login' %}
-                       {% endif %}"
+                          {% if user.account_type == 'user' %}{% url 'user_dashboard' %}
+                          {% elif user.account_type == 'vendor' %}{% url 'vendor_dashboard' %}
+                          {% else %}{% url 'login' %}{% endif %}
+                        {% else %}
+                          {% url 'login' %}
+                        {% endif %}"
                class="icon-btn">
               <svg width="24" height="24"><use xlink:href="#user"></use></svg>
             </a>
           </li>
 
-          <li><a href="{% url 'wishlist' %}" class="icon-btn"><svg width="24" height="24"><use xlink:href="#heart"></use></svg></a></li>
+          <li>
+            <a href="{% if user.is_authenticated %}{% url 'wishlist' %}{% else %}{% url 'login' %}{% endif %}" class="icon-btn position-relative" title="Wishlist">
+              <svg width="24" height="24"><use xlink:href="#heart"></use></svg>
+              {% if user.is_authenticated %}
+                {% with wishlist_count=user.wishlist_set.count %}
+                  {% if wishlist_count > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger wishlist-count-badge" style="font-size: 0.6rem; padding: 0.35em 0.55em;">{{ wishlist_count }}</span>
+                  {% else %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger wishlist-count-badge" style="font-size: 0.6rem; padding: 0.35em 0.55em; display: none;">0</span>
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+            </a>
+          </li>
 
-          <li><a href="{% url 'cart' %}" class="icon-btn"><svg width="24" height="24"><use xlink:href="#cart"></use></svg></a></li>
+          <li>
+            <a href="{% url 'cart' %}" class="icon-btn position-relative" title="Cart">
+              <svg width="24" height="24"><use xlink:href="#cart"></use></svg>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count-badge" style="font-size: 0.6rem; padding: 0.35em 0.55em; display: none;">0</span>
+            </a>
+          </li>
 
           {% if user.is_authenticated %}
           <li><a href="{% url 'logout' %}" class="icon-btn" title="Logout"><svg width="24" height="24"><use xlink:href="#box-arrow-right"></use></svg></a></li>
@@ -240,7 +258,6 @@
   </div>
 </div>
 
-<!-- Extra CSS for Icons -->
 <style>
   .icon-btn {
     display: flex;
@@ -252,16 +269,11 @@
     height: 38px;
     transition: background 0.2s;
   }
+
   .icon-btn:hover {
     background: #e9ecef;
   }
-</style>
 
-  {% block content %}
-
-  {% endblock %}
-
-<style>
   footer a:hover {
     color: #ffc107 !important;
   }
@@ -271,40 +283,21 @@
     color: #212529 !important;
     border-color: #ffc107 !important;
   }
-
-  /* Search Icon Hover Animation */
-  .search-button {
-    transition: transform 0.3s ease-in-out;
-  }
-
-  .search-button:hover {
-    transform: scale(1.1); /* Slightly enlarge the icon on hover */
-  }
-
-  /* Styles for Font Awesome icons in select dropdowns */
-  .filter-categories option::before {
-    font-family: "Font Awesome 6 Free"; /* Or "Font Awesome 6 Pro" if you're using pro icons */
-    font-weight: 900; /* For solid icons, use 900. For regular, use 400. */
-    margin-right: 0.5em;
-  }
-
-  /* Add specific icon classes here, if `parent.icon` isn't directly a Font Awesome class */
-  /* Example: If parent.icon is 'fa-solid fa-shirt' */
-  .filter-categories option[data-icon="fa-solid fa-shirt"]::before { content: "\f553"; } /* Unicode for fa-shirt */
-  .filter-categories option[data-icon="fa-solid fa-mobile-screen"]::before { content: "\f38b"; } /* Unicode for fa-mobile-screen */
-  /* ... add more as needed based on your category icons ... */
-
 </style>
+
+  {% block content %}
+
+  {% endblock %}
 
 <footer class="text-light pt-5 pb-4">
   <div class="container-fluid">
     <div class="row gy-4">
 
       <div class="col-lg-3 col-md-6">
-                    <a href="{% url 'home' %}">
-              <img src="{% static 'images/sumia.png' %}" style="width: 150px; height: 125px; margin-bottom: 2rem;" alt="logo"
-                class="img-fluid">
-            </a>
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/sumia.png' %}" style="width: 150px; height: 125px; margin-bottom: 2rem;" alt="logo"
+               class="img-fluid">
+        </a>
           <div class="d-flex gap-2">
           <a href="#" class="btn btn-outline-light rounded-circle p-2 d-flex align-items-center justify-content-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
@@ -349,11 +342,9 @@
           <li><a href="#" class="text-muted text-decoration-none d-block mb-2">Refund Policy</a></li>
           <li><a href="#" class="text-muted text-decoration-none d-block mb-2">Shipping Policy</a></li>
           <li><a href="#" class="text-muted text-decoration-none d-block mb-2">Terms & Conditions</a></li>
-        </ul></div>
-        <div>
-        </div>
+        </ul>
+      </div>
 
-        </div>
     </div>
     <hr class="border-secondary my-4">
     <div class="text-center text-muted small">
@@ -370,26 +361,13 @@
   </script>
   <script src="{% static 'js/script.js' %}"></script>
   <script>
-    // JavaScript to handle icons in the select dropdown (optional, if direct CSS doesn't work for all browsers)
-    // This is often needed because <option> tags have limited styling capabilities.
-    // A library like Bootstrap Select (https://developer.snapappointments.com/bootstrap-select/) is typically used for full control.
-    // For a basic display, you can try this with Font Awesome:
-
-    document.addEventListener('DOMContentLoaded', function() {
-      var selectElement = document.querySelector('.filter-categories');
-      if (selectElement) {
-        Array.from(selectElement.options).forEach(function(option) {
-          var iconClass = option.getAttribute('data-icon');
-          if (iconClass) {
-            // This attempts to prepend the icon, but visual consistency across browsers
-            // for icons directly inside <option> is often an issue.
-            // For robust solutions, a custom select library is recommended.
-            option.innerHTML = '<i class="' + iconClass + ' me-2"></i>' + option.innerHTML;
-          }
-        });
-      }
-    });
+    window.SumiaAJAX = {
+      cartCountUrl: "{% url 'ajax_cart_count' %}",
+      searchUrl: "{% url 'ajax_search' %}",
+      loginUrl: "{% url 'login' %}",
+    };
   </script>
+  <script src="{% static 'js/ajax_ecommerce.js' %}?v=1"></script>
 </body>
 
 </html>
