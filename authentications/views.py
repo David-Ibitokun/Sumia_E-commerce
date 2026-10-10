@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .forms import UsersRegistrationForm, CustomAuthenticationForm
+from .forms import ProfileForm, UsersRegistrationForm, CustomAuthenticationForm
 from pages.decorators import customer_required, vendor_required
 from shop.services import dashboard as dashboard_service
 
@@ -73,7 +73,7 @@ def vendor_dashboard(request):
 @login_required(login_url='login')
 def my_profile(request):
     """View and update the signed in user's profile."""
-    form = UsersRegistrationForm(
+    form = ProfileForm(
         request.POST or None, instance=request.user
     )
 

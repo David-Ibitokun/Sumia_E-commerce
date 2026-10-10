@@ -2,16 +2,18 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from shop.services import orders as order_service
+from shop.services import orders as order_service, pagination
 
 
 @login_required(login_url='login')
 def order_list(request):
     """Every order placed by the signed in customer."""
+    orders = order_service.orders_for_user(request.user)
+    page_obj, paginator = pagination.paginate_queryset(request, orders)
     return render(
         request,
         'orders/order_list.html',
-        {'orders': order_service.orders_for_user(request.user)},
+        {'page_obj': page_obj, 'paginator': paginator, 'orders': page_obj.object_list},
     )
 
 

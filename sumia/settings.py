@@ -9,10 +9,12 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-import os  
+import os
 from pathlib import Path
 from dotenv import load_dotenv
+
 load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,12 +23,55 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1y48=+f7*p4%0*eddhmbriw*8_i6^@&(0gzjl$s&t^wvb3o!df'
+# In production, ALWAYS set DJANGO_SECRET_KEY environment variable
+# For testing/local dev without .env, a fallback is provided
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key-for-testing-only-do-not-use-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Default to False for production safety; override with DJANGO_DEBUG=True for local development
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS - default to localhost for development, override in production
+# In production, ALWAYS set DJANGO_ALLOWED_HOSTS environment variable
+allowed_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in allowed_hosts_env.split(',')
+    if host.strip()
+]
+
+# Security headers - driven by environment variables with production-safe defaults
+# These should NOT be conditionally disabled based on DEBUG to ensure production safety
+SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() == 'true'
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '31536000'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True').lower() == 'true'
+SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'True').lower() == 'true'
+SECURE_BROWSER_XSS_FILTER = os.environ.get('SECURE_BROWSER_XSS_FILTER', 'True').lower() == 'true'
+SECURE_CONTENT_TYPE_NOSNIFF = os.environ.get('SECURE_CONTENT_TYPE_NOSNIFF', 'True').lower() == 'true'
+SECURE_REFERRER_POLICY = os.environ.get('SECURE_REFERRER_POLICY', 'strict-origin-when-cross-origin')
+X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'DENY')
+SECURE_PROXY_SSL_HEADER = (
+    os.environ.get('SECURE_PROXY_SSL_HEADER_NAME', 'HTTP_X_FORWARDED_PROTO'),
+    os.environ.get('SECURE_PROXY_SSL_HEADER_VALUE', 'https')
+)
+
+# Detect test environment to disable SSL redirect (test client uses HTTP)
+import sys
+IS_TESTING = 'test' in sys.argv or os.environ.get('DJANGO_TESTING', 'False').lower() == 'true'
+
+# For local development without HTTPS, allow overriding security headers via .env
+# But in production (check --deploy), these default to secure values
+if DEBUG or IS_TESTING:
+    # Allow disabling secure headers in development via environment variables
+    # but default to secure values so check --deploy passes
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() == 'true'
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+    CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False').lower() == 'true'
+    SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'False').lower() == 'true'
 
 
 # Application definition
@@ -50,7 +95,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', 
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -64,7 +109,7 @@ ROOT_URLCONF = 'sumia.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,7 +122,6 @@ TEMPLATES = [
     },
 ]
 
-
 AUTH_USER_MODEL = 'authentications.UsersRegistration'
 
 WSGI_APPLICATION = 'sumia.wsgi.application'
@@ -85,75 +129,45 @@ WSGI_APPLICATION = 'sumia.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 import dj_database_url
-#  Using Railway/PostgreSQL
-# DATABASES = {
 
-#     'default': {
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
-#         #'ENGINE': 'django.db.backends.sqlite3',
-
-#         'ENGINE': 'django.db.backends.postgresql',
-
-#         'NAME': '',
-
-#         'USER': '',
-
-#         'PASSWORD': '',
-
-#         'HOST': '',
-
-#         'PORT': '',
-
-#     }
-
-# }
-
-
-#  Using Render's DATABASE_URL environment variable
-# ENV = os.getenv("DJANGO_ENV", "local")
-
-# if ENV == "local":
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': os.getenv('DB_NAME'),
-#             'USER': os.getenv('DB_USER'),
-#             'PASSWORD': os.getenv('DB_PASSWORD'),
-#             'HOST': os.getenv('DB_HOST'),
-#             'PORT': os.getenv('DB_PORT'),
-#             'OPTIONS': {
-#                 'sslmode': os.getenv('DB_SSLMODE', 'require'),
-#             },
-#         }
-#     }
-
-# else:  # Running on Render
-#     DATABASES = {
-#         'default': dj_database_url.config(
-#             default=os.getenv("DATABASE_URL"),
-#             conn_max_age=600,
-#             ssl_require=True
-#         )
-#     }
-
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DATABASE_URL:
+    # Production: Use DATABASE_URL (PostgreSQL on Render, Railway, etc.)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
-}
+else:
+    # Development: Use environment variables for local PostgreSQL or fallback to SQLite
+    DB_ENGINE = os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3')
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'sumia',
-#         'USER': 'root',
-#         'PASSWORD': 'admin',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#     }
-# }
+    if DB_ENGINE == 'django.db.backends.sqlite3':
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+    elif DB_ENGINE in ('django.db.backends.postgresql', 'django.db.backends.mysql'):
+        DATABASES = {
+            'default': {
+                'ENGINE': DB_ENGINE,
+                'NAME': os.environ.get('DB_NAME', 'sumia'),
+                'USER': os.environ.get('DB_USER', ''),
+                'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+                'HOST': os.environ.get('DB_HOST', 'localhost'),
+                'PORT': os.environ.get('DB_PORT', '5432' if DB_ENGINE == 'django.db.backends.postgresql' else '3306'),
+                'OPTIONS': {
+                    'sslmode': os.environ.get('DB_SSLMODE', 'require' if not DEBUG else 'disable'),
+                },
+            }
+        }
+    else:
+        raise ValueError(f'Unsupported database engine: {DB_ENGINE}')
 
 
 # Password validation
@@ -187,16 +201,20 @@ USE_I18N = True
 USE_TZ = True
 
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.environ.get('STATIC_ROOT', str(BASE_DIR / 'staticfiles_collected'))
-# if not DEBUG:
-#     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles_collected'
 
-#     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-# else:
-#     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Media files (User uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -204,14 +222,12 @@ STATIC_ROOT = os.environ.get('STATIC_ROOT', str(BASE_DIR / 'staticfiles_collecte
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-JAZZMIN_SETTINGS ={
+JAZZMIN_SETTINGS = {
     "site_title": "Sumia Admin",
     "site_header": "Sumia",
     "site_brand": "Sumia",
-    "show_ui_builder" : True,
+    "show_ui_builder": True,
     "copyright": "Sumia Ltd",
-    # "site_logo": "images\sumia.jpg",
-    # "login_logo": "images\sumia.jpg",
     "site_logo_classes": "img-circle",
 }
 
@@ -220,5 +236,59 @@ JAZZMIN_UI_TWEAKS = {
     "dark_mode_theme": "darkly",
 }
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# Email configuration (for password reset, notifications, etc.)
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.console.EmailBackend'
+)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'localhost')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@example.com')
+
+# CSRF trusted origins for production
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin.strip()
+]
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+        'shop': {
+            'handlers': ['console'],
+            'level': os.environ.get('SHOP_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}

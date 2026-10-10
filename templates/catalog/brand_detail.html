@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load humanize %} {# For intcomma filter #}
+{% load humanize %}
+{% load custom_filters %}
 
 {% block title %}{{ brand.name }} Products{% endblock %}
 
@@ -36,9 +37,9 @@
 
         <!-- Products List -->
         <div class="col-12">
-            {% if products %}
+            {% if page_obj %}
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
-                    {% for product in products %}
+                    {% for product in page_obj %}
                         <div class="col">
                             <div class="card h-100 shadow-sm rounded-4 border-0 product-card">
                                 <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark">
@@ -86,8 +87,19 @@
                                 </div>
                             </div>
                         </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-info text-center py-4 my-4 rounded-3 shadow-sm" role="alert">
+                                <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> No Products Found!</h4>
+                                <p>It looks like there are no products listed for this brand yet.</p>
+                                <hr>
+                                <p class="mb-0">Check back later or explore other brands!</p>
+                                <a href="{% url 'home' %}" class="btn btn-primary mt-3 rounded-pill">Continue Shopping</a>
+                            </div>
+                        </div>
                     {% endfor %}
                 </div>
+                {% include 'partials/paginator.html' %}
             {% else %}
                 <div class="alert alert-info text-center py-4 my-4 rounded-3 shadow-sm" role="alert">
                     <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> No Products Found!</h4>

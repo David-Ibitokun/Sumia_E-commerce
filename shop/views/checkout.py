@@ -3,14 +3,20 @@
 All validation lives in `shop.forms.CheckoutForm`; the view only turns a valid
 form into an order through `shop.services.orders`.
 """
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from django.http import Http404
 from django.shortcuts import redirect, render
 
 from shop.forms import CheckoutForm
 from shop.services import cart as cart_service
 from shop.services import orders as order_service
 from shop.services.exceptions import ShopServiceError
+
+logger = logging.getLogger(__name__)
 
 
 @login_required(login_url='login')
@@ -52,6 +58,7 @@ def checkout(request):
             request.user, cart, form.shipping_data()
         )
     except ShopServiceError as error:
+        logger.warning("Checkout failed for user %s: %s", request.user.id, error)
         messages.error(request, str(error))
         return render(
             request, 'checkout/checkout.html', {**context, 'form': form}

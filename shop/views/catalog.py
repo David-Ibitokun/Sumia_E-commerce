@@ -11,7 +11,7 @@ from pages.decorators import vendor_required
 from pages.models import Product
 
 from shop.forms import ProductForm
-from shop.services import categories as category_service
+from shop.services import categories as category_service, pagination
 
 
 def category_selection(form, product=None):
@@ -43,7 +43,8 @@ def category_selection(form, product=None):
 def product_list(request):
     """Products created by the signed in vendor."""
     products = Product.objects.filter(creator=request.user).order_by('-created_at')
-    return render(request, 'vendor/product_list.html', {'products': products})
+    page_obj, paginator = pagination.paginate_queryset(request, products)
+    return render(request, 'vendor/product_list.html', {'page_obj': page_obj, 'paginator': paginator, 'products': page_obj.object_list})
 
 
 @vendor_required

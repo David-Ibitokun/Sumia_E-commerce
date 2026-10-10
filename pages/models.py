@@ -314,3 +314,24 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name if self.product else 'Deleted Product'} in Order {self.order.order_number}"
+
+
+class IdempotencyKey(models.Model):
+    """Idempotency key for safe retry of order placement.
+
+    Stores a unique key per user+request with the resulting order, so duplicate
+    submissions (e.g. double-click, network retry) return the same order instead
+    of creating duplicates.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='idempotency_keys')
+    key = models.CharField(max_length=64, db_index=True)
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True, related_name='idempotency_keys')
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        unique_together = ('user', 'key')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"IdempotencyKey({self.key[:8]}...) for {self.user.username}"

@@ -1,8 +1,7 @@
-# authentications/forms.py
-
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import UsersRegistration
+
 
 class CustomAuthenticationForm(AuthenticationForm):
     """Custom login form with improved styling"""
@@ -88,6 +87,54 @@ class UsersRegistrationForm(UserCreationForm):
             'password2': forms.PasswordInput(attrs={
                 'class': 'form-control-custom',
                 'placeholder': 'Confirm password'
+            }),
+        }
+
+
+class ProfileForm(forms.ModelForm):
+    """Profile editing form.
+
+    Deliberately excludes ``account_type`` and ``agreed_to_terms``: those are
+    set at registration (or by an administrator) and must never be editable
+    through a self-service profile page, otherwise any signed-in user can
+    promote themselves to a vendor.
+    """
+
+    first_name = forms.CharField(
+        label='First Name',
+        max_length=30,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control-custom',
+            'placeholder': 'Enter your first name'
+        })
+    )
+    last_name = forms.CharField(
+        label='Last Name',
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control-custom',
+            'placeholder': 'Enter your last name'
+        })
+    )
+    email = forms.EmailField(
+        label='Email Address',
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control-custom',
+            'placeholder': 'Enter your email address'
+        })
+    )
+
+    class Meta:
+        model = UsersRegistration
+        fields = ('first_name', 'last_name', 'email')
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'form-control-custom',
+                'placeholder': 'Enter your username',
+                'readonly': True,
             }),
         }
 

@@ -8,16 +8,18 @@ from django.shortcuts import render
 
 from pages.decorators import vendor_required
 
-from shop.services import orders as order_service
+from shop.services import orders as order_service, pagination
 
 
 @vendor_required
 def vendor_orders(request):
     """Orders that contain at least one of the vendor's products."""
+    orders = order_service.orders_for_vendor(request.user)
+    page_obj, paginator = pagination.paginate_queryset(request, orders)
     return render(
         request,
         'vendor/orders.html',
-        {'orders': order_service.orders_for_vendor(request.user)},
+        {'page_obj': page_obj, 'paginator': paginator, 'orders': page_obj.object_list},
     )
 
 
