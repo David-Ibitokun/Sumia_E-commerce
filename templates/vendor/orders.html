@@ -8,14 +8,17 @@
 {% block content %}
 <section class="py-5 bg-light">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-primary display-5 mb-3">My Customer Orders</h2>
-            <p class="lead text-muted">Review and manage orders containing your products.</p>
+
+        <!-- Welcome Header -->
+        <div class="mb-5">
+            <p class="text-uppercase text-muted small fw-bold mb-2">Vendor Dashboard</p>
+            <h2 class="fw-bold text-dark display-5 mb-2">My Customer Orders</h2>
+            <p class="lead text-muted mb-0">Review and manage orders containing your products.</p>
         </div>
 
         <!-- Navigation Buttons -->
-        <div class="mb-5 text-center d-flex flex-wrap justify-content-center gap-3">
-            <a href="{% url 'add_product' %}" class="btn btn-outline-primary btn-lg rounded-pill shadow-sm">
+        <div class="mb-5 d-flex flex-wrap justify-content-center gap-3">
+            <a href="{% url 'add_product' %}" class="btn btn-primary btn-lg rounded-pill shadow-sm">
                 <i class="fas fa-plus-circle me-2"></i> Add New Product
             </a>
             <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill shadow-sm">
@@ -26,33 +29,37 @@
             </a>
         </div>
 
-        
-        
         <!-- Orders List Section -->
-        <div class="card shadow-lg border-0 rounded-4">
+        <div class="card shadow-sm border-0 rounded-4">
             <div class="card-body p-4">
-                <h4 class="card-title mb-4 fw-bold text-dark">All Orders ({{ paginator.count|intcomma }})</h4>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title fw-bold text-dark mb-0">All Orders ({{ paginator.count|intcomma }})</h4>
+                    <a href="{% url 'vendor_orders' %}" class="btn btn-sm btn-outline-primary rounded-pill">Refresh</a>
+                </div>
 
                 {% if page_obj %}
                     <div class="table-responsive">
                         <table class="table table-hover table-striped align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th scope="col">Order Number</th>
+                                    <th scope="col">Order</th>
                                     <th scope="col">Customer</th>
                                     <th scope="col">Items</th>
-                                    <th scope="col">Total (₦)</th>
-                                    <th scope="col">Order Date</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Actions</th>
+                                    <th scope="col" class="text-end">Your Total</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col" class="text-end">Status</th>
+                                    <th scope="col" class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for order in page_obj %}
                                 <tr>
-                                    <th scope="row">#{{ order.order_number }}</th>
+                                    <th scope="row" class="fw-semibold">
+                                        <a href="{% url 'vendor_order_detail' order.order_number %}" class="text-decoration-none">
+                                            #{{ order.order_number }}
+                                        </a>
+                                    </th>
                                     <td>
-                                        {# Corrected Line 70 (or similar) #}
                                         {% if order.user %}
                                             {{ order.user.get_full_name|default:order.user.username }}
                                         {% else %}
@@ -68,16 +75,16 @@
                                             {% endfor %}
                                         </ul>
                                     </td>
-                                    <td>₦{{ order.vendor_total_amount|intcomma|default:0 }}</td>
-                                    <td>{{ order.created_at|date:"M d, Y" }}</td>
-                                    <td>
+                                    <td class="text-end fw-semibold">&#8358;{{ order.vendor_total_amount|intcomma|default:0 }}</td>
+                                    <td class="text-muted">{{ order.created_at|date:"M d, Y" }}</td>
+                                    <td class="text-end">
                                         {% if order.is_paid %}
-                                            <span class="badge bg-success py-2 px-3 rounded-pill">Paid</span>
+                                            <span class="badge bg-success rounded-pill py-2 px-3">Paid</span>
                                         {% else %}
-                                            <span class="badge bg-warning text-dark py-2 px-3 rounded-pill">Pending Payment</span>
+                                            <span class="badge bg-warning text-dark rounded-pill py-2 px-3">Pending Payment</span>
                                         {% endif %}
                                     </td>
-                                    <td>
+                                    <td class="text-end">
                                         <a href="{% url 'vendor_order_detail' order.order_number %}" class="btn btn-sm btn-outline-primary rounded-pill">View Order</a>
                                     </td>
                                 </tr>
@@ -87,17 +94,17 @@
                     </div>
                     {% include 'partials/paginator.html' %}
                 {% else %}
-                    <div class="alert alert-info text-center py-4 my-4 rounded-3 shadow-sm" role="alert">
-                        <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> No Orders Found!</h4>
-                        <p>You currently don't have any customer orders for your products.</p>
-                        <hr>
-                        <p class="mb-0">Keep adding great products to attract more customers!</p>
+                    <div class="text-center py-5">
+                        <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                        <h5 class="fw-bold text-dark">No orders yet</h5>
+                        <p class="text-muted mb-4">Orders containing your products will show up here.</p>
+                        <a href="{% url 'add_product' %}" class="btn btn-primary rounded-pill px-4">
+                            <i class="fas fa-plus-circle me-2"></i> List a product
+                        </a>
                     </div>
                 {% endif %}
             </div>
         </div>
-    </div>
-</section>
     </div>
 </section>
 {% endblock %}

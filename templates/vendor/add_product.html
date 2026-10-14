@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Add New Product{% endblock %}
 
@@ -38,7 +39,7 @@
     /* Hover effect */
     .category-choice:hover {
         background-color: #e9ecef; /* Slightly darker background on hover */
-        border-color: #ffc43f; /* Blue border on hover */
+        border-color: #0d6efd; /* Blue border on hover */
         box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25); /* More prominent subtle shadow on hover */
     }
 
@@ -90,11 +91,11 @@
     }
     .accordion-button:not(.collapsed) {
         background-color: #e2e6ea; /* Slightly darker when open */
-        color: #ffc43f; /* Blue text when open */
+        color: #0d6efd; /* Blue text when open */
         box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
     }
     .accordion-button:not(.collapsed) i {
-        color: #ffc43f; /* Blue icon when open */
+        color: #0d6efd; /* Blue icon when open */
     }
 
     /* Form control specific styling */
@@ -140,121 +141,130 @@
 </style>
 {# --- END: Inline CSS for clickable categories and general styling enhancements --- #}
 
-{{ form.media.css }} 
+{{ form.media.css }}
 
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h2 class="fw-bold text-primary display-5 mb-3">Your Vendor Dashboard</h2>
-        <p class="lead text-muted">Hello, <span class="fw-semibold text-dark">{{ request.user.first_name|default:"Vendor" }}</span>! Seamlessly manage your product listings and inventory here.</p>
-    </div>
+<section class="py-5 bg-light">
+    <div class="container">
 
-    <!-- Navigation Buttons -->
-    <div class="mb-5 text-center d-flex flex-wrap justify-content-center gap-3">
-        <a href="{% url 'add_product' %}" class="btn btn-primary btn-lg rounded-pill shadow-sm">
-            <i class="fas fa-plus-circle me-2"></i> Add New Product
-        </a>
-        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill shadow-sm">
-            <i class="fas fa-boxes me-2"></i> Edit My Products
-        </a>
-        <a href="{% url 'vendor_orders' %}" class="btn btn-outline-info btn-lg rounded-pill shadow-sm">
-            <i class="fas fa-receipt me-2"></i> My Orders
-        </a>
-    </div>
-
-    <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-header bg-primary text-white fw-bold py-3 px-4 rounded-top-4">
-            <h5 class="text-white mb-0">Add New Product</h5>
+        <!-- Welcome Header -->
+        <div class="mb-5">
+            <p class="text-uppercase text-muted small fw-bold mb-2">Vendor Dashboard</p>
+            <h2 class="fw-bold text-dark display-5 mb-2">Add New Product</h2>
+            <p class="lead text-muted mb-0">Create a new product listing for your store.</p>
         </div>
-        <form method="post" enctype="multipart/form-data" class="p-4">
-            {% csrf_token %}
 
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger rounded-3" role="alert">
-                    {% for error in form.non_field_errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
+        <!-- Navigation Buttons -->
+        <div class="mb-5 d-flex flex-wrap justify-content-center gap-3">
+            <a href="{% url 'add_product' %}" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                <i class="fas fa-plus-circle me-2"></i> Add New Product
+            </a>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill shadow-sm">
+                <i class="fas fa-boxes me-2"></i> View My Products
+            </a>
+            <a href="{% url 'vendor_orders' %}" class="btn btn-outline-info btn-lg rounded-pill shadow-sm">
+                <i class="fas fa-receipt me-2"></i> My Orders
+            </a>
+        </div>
 
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">Product Name</label>
-                    {{ form.name }}
-                    {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+        <!-- Add Product Form -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title fw-bold text-dark mb-0">Product Details</h4>
                 </div>
-                <div class="col-md-6">
-                    <label for="{{ form.brand_name.id_for_label }}" class="form-label fw-bold">Brand Name</label>
-                    {{ form.brand_name }}
-                    {% if form.brand_name.errors %}<div class="text-danger small mt-1">{{ form.brand_name.errors }}</div>{% endif %}
-                </div>
-            </div>
 
-            <div class="mb-4">
-                <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">Description</label>
-                {{ form.description }}
-                {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
-            </div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
 
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <label for="{{ form.price.id_for_label }}" class="form-label fw-bold">Price (₦)</label>
-                    {{ form.price }}
-                    {% if form.price.errors %}<div class="text-danger small mt-1">{{ form.price.errors }}</div>{% endif %}
-                </div>
-                <div class="col-md-6">
-                    <label for="{{ form.discount_price.id_for_label }}" class="form-label fw-bold">Discount Price (₦) <small class="text-muted">(Optional)</small></label>
-                    {{ form.discount_price }}
-                    {% if form.discount_price.errors %}<div class="text-danger small mt-1">{{ form.discount_price.errors }}</div>{% endif %}
-                </div>
-            </div>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger rounded-3" role="alert">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 
-            <div class="mb-4 container-fluid">
-                <label for="{{ form.tags.id_for_label }}" class="form-label fw-bold">Tags</label>
-                {{ form.tags }}
-                <div class="form-text text-muted mt-1">This helps users search for your products better.</div>
-                {% if form.tags.errors %}<div class="text-danger small mt-1">{{ form.tags.errors }}</div>{% endif %}
-            </div>
-
-            <div class="mb-4">
-                <label for="{{ form.image.id_for_label }}" class="form-label fw-bold">Product Image</label>
-                {{ form.image }}
-                {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors }}</div>{% endif %}
-                
-                {# Image Preview Container #}
-                <div id="image-preview-container">
-                    <img id="image-preview" src="#" alt="Image Preview">
-                    <span id="image-preview-placeholder">No image selected</span>
-                </div>
-            </div>
-
-            <div class="row mb-4 align-items-center">
-                <div class="col-md-6">
-                    <label for="{{ form.stock_quantity.id_for_label }}" class="form-label fw-bold">Stock Quantity</label>
-                    {{ form.stock_quantity }}
-                    {% if form.stock_quantity.errors %}<div class="text-danger small mt-1">{{ form.stock_quantity.errors }}</div>{% endif %}
-                </div>
-                <div class="col-md-6 mt-md-0 mt-3">
-                    <div class="form-check form-switch pt-4">
-                        {{ form.is_available }}
-                        <label class="form-check-label fw-bold" for="{{ form.is_available.id_for_label }}">Is Available for Sale</label>
-                        {% if form.is_available.errors %}<div class="text-danger small mt-1">{{ form.is_available.errors }}</div>{% endif %}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">Product Name</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.brand_name.id_for_label }}" class="form-label fw-bold">Brand Name</label>
+                            {{ form.brand_name }}
+                            {% if form.brand_name.errors %}<div class="text-danger small mt-1">{{ form.brand_name.errors }}</div>{% endif %}
+                        </div>
                     </div>
-                </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.price.id_for_label }}" class="form-label fw-bold">Price (₦)</label>
+                            {{ form.price }}
+                            {% if form.price.errors %}<div class="text-danger small mt-1">{{ form.price.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.discount_price.id_for_label }}" class="form-label fw-bold">Discount Price (₦) <small class="text-muted">(Optional)</small></label>
+                            {{ form.discount_price }}
+                            {% if form.discount_price.errors %}<div class="text-danger small mt-1">{{ form.discount_price.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4 container-fluid">
+                        <label for="{{ form.tags.id_for_label }}" class="form-label fw-bold">Tags</label>
+                        {{ form.tags }}
+                        <div class="form-text text-muted mt-1">This helps users search for your products better.</div>
+                        {% if form.tags.errors %}<div class="text-danger small mt-1">{{ form.tags.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.image.id_for_label }}" class="form-label fw-bold">Product Image</label>
+                        {{ form.image }}
+                        {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors }}</div>{% endif %}
+
+                        {# Image Preview Container #}
+                        <div id="image-preview-container">
+                            <img id="image-preview" src="#" alt="Image Preview">
+                            <span id="image-preview-placeholder">No image selected</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-md-6">
+                            <label for="{{ form.stock_quantity.id_for_label }}" class="form-label fw-bold">Stock Quantity</label>
+                            {{ form.stock_quantity }}
+                            {% if form.stock_quantity.errors %}<div class="text-danger small mt-1">{{ form.stock_quantity.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mt-md-0 mt-3">
+                            <div class="form-check form-switch pt-4">
+                                {{ form.is_available }}
+                                <label class="form-check-label fw-bold" for="{{ form.is_available.id_for_label }}">Is Available for Sale</label>
+                                {% if form.is_available.errors %}<div class="text-danger small mt-1">{{ form.is_available.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% include 'vendor/partials/category_selector.html' %}
+
+                    <div class="d-flex justify-content-end gap-3 mt-4">
+                        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-4">Add Product</button>
+                    </div>
+                </form>
             </div>
+        </div>
 
-            {% include 'vendor/partials/category_selector.html' %}
-
-            <div class="d-flex justify-content-end gap-3 mt-4">
-                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Cancel</a>
-                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-4">Add Product</button>
-            </div>
-
-        </form>
     </div>
-</div>
+</section>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-{{ form.media.js }} 
+{{ form.media.js }}
 
 {# --- START: JavaScript for clickable categories and image preview --- #}
 <script>
