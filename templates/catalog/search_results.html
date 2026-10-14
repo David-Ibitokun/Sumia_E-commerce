@@ -7,43 +7,57 @@
 <div class="container my-5">
   <h3 class="mb-4">Search Results for "{{ query }}"</h3>
 
-  {% if page_obj %}
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-      {% for product in page_obj %}
-        <div class="col">
-          <div class="card h-100 shadow-sm">
-            {% if product.image %}
-              <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+{% if page_obj %}
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <p class="text-muted mb-0">
+      {{ paginator.count }} product{{ paginator.count|pluralize }} found
+      {% if query %}for "{{ query }}"{% endif %}
+      {% if selected_category_id %}within this category{% endif %}
+    </p>
+  </div>
+
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+    {% for product in page_obj %}
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+          {% else %}
+            <img src="{% static 'images/no-image.png' %}" class="card-img-top" alt="No image">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name|highlight:query }}</h5>
+            <p class="card-text">{{ product.description|truncatechars:80|highlight:query }}</p>
+            <p class="text-muted small mb-1">
+              <strong>Brand:</strong> {{ product.brand.name|default:'N/A' }} <br>
+              <strong>Category:</strong> {{ product.category.name|default:'Uncategorized' }}
+            </p>
+            {% if product.discount_price %}
+              <div class="text-danger fw-bold">
+                ₦{{ product.discount_price|intcomma }} <del class="text-muted">₦{{ product.price|intcomma }}</del>
+              </div>
             {% else %}
-              <img src="{% static 'images/no-image.png' %}" class="card-img-top" alt="No image">
+              <div class="fw-bold">₦{{ product.price|intcomma }}</div>
             {% endif %}
-            <div class="card-body">
-              <h5 class="card-title">{{ product.name }}</h5>
-              <p class="card-text">{{ product.description|truncatechars:80 }}</p>
-              <p class="text-muted small mb-1">
-                <strong>Brand:</strong> {{ product.brand.name }} <br>
-                <strong>Category:</strong> {{ product.category.name }}
-              </p>
-              {% if product.discount_price %}
-                <div class="text-danger fw-bold">
-                  ₦{{ product.discount_price }} <del class="text-muted">₦{{ product.price }}</del>
-                </div>
-              {% else %}
-                <div class="fw-bold">₦{{ product.price }}</div>
-              {% endif %}
-              <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline-primary mt-2">View</a>
-            </div>
+            <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline-primary mt-2">View</a>
           </div>
         </div>
-      {% empty %}
-        <div class="col-12">
-          <p>No products found.</p>
-        </div>
-      {% endfor %}
-    </div>
-    {% include 'partials/paginator.html' %}
-  {% else %}
-    <p>No products found.</p>
-  {% endif %}
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <p>No products found.</p>
+      </div>
+    {% endfor %}
+  </div>
+  {% include 'partials/paginator.html' %}
+{% else %}
+  <div class="text-center py-5">
+    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+    <h4>No products found</h4>
+    <p class="text-muted">
+      {% if query %}Try a different search term or remove the category filter.{% else %}Browse our <a href="{% url 'shop' %}">full catalog</a> or refine your search above.{% endif %}
+    </p>
+  </div>
+{% endif %}
 </div>
 {% endblock %}

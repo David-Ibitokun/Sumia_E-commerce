@@ -1,5 +1,5 @@
 """Read-only queries for the product catalog."""
-from django.db.models import Q
+from django.db.models import Case, F, IntegerField, Q, Value, When
 from django.shortcuts import get_object_or_404
 
 from pages.models import Product
@@ -67,19 +67,60 @@ def search_products(query, category_id=None, only_available=False):
     """Search products by name, description, category, tag or brand.
 
     Shared by the full search page and the AJAX live search so both stay in sync.
+    Results are ranked by relevance: exact-name matches score highest, brand and
+    category matches score next, and description matches score lowest.  An
+    empty query returns all (optionally available) products ordered by recency.
     """
     queryset = Product.objects.all()
     if only_available:
         queryset = queryset.filter(is_available=True)
 
     if query:
-        queryset = queryset.filter(
-            Q(name__icontains=query)
-            | Q(description__icontains=query)
-            | Q(category__name__icontains=query)
-            | Q(tags__name__icontains=query)
-            | Q(brand__name__icontains=query)
-        ).distinct()
+        # Annotate match flags first so each LIKE is evaluated only once,
+        # then filter on the flags (avoids the double-EVALUATE problem where
+        # the original Case/When re-ran every icontains condition from the
+        # WHERE clause).
+        queryset = queryset.annotate(
+            name_match=Case(
+                When(name__icontains=query, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+            brand_match=Case(
+                When(brand__name__icontains=query, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+            category_match=Case(
+                When(category__name__icontains=query, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+            tag_match=Case(
+                When(tags__name__icontains=query, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+            description_match=Case(
+                When(description__icontains=query, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+        ).filter(
+            Q(name_match=1)
+            | Q(brand_match=1)
+            | Q(category_match=1)
+            | Q(tag_match=1)
+            | Q(description_match=1)
+        ).distinct().annotate(
+            relevance=(
+                F('name_match') * 4
+                + F('brand_match') * 2
+                + F('category_match') * 2
+                + F('tag_match') * 2
+                + F('description_match') * 1
+            ),
+        ).order_by('-relevance', '-created_at')
 
     if category_id:
         category_ids = categories.resolve_subtree(category_id)
@@ -88,3 +129,5 @@ def search_products(query, category_id=None, only_available=False):
         queryset = queryset.filter(category__in=category_ids)
 
     return queryset.select_related(*PRODUCT_FIELDS)
+
+

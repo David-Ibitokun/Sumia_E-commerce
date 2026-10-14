@@ -247,13 +247,13 @@
           </option>
         {% endfor %}
       </select>
-      <div class="input-group">
-        <input type="text" name="q" class="form-control" placeholder="Search for products"
-               value="{{ request.GET.q|default:'' }}">
-        <button type="submit" class="btn btn-primary">
-          <svg width="20" height="20"><use xlink:href="#search"></use></svg>
-        </button>
+      <div class="position-relative">
+        <input type="text" name="q" class="form-control ajax-search-input" placeholder="Search for products"
+               value="{{ request.GET.q|default:'' }}" autocomplete="off">
       </div>
+      <button type="submit" class="btn btn-primary">
+        <svg width="20" height="20"><use xlink:href="#search"></use></svg>
+      </button>
     </form>
   </div>
 </div>

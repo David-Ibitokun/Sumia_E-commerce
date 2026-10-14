@@ -1,6 +1,10 @@
 """Template filters shared by the project templates."""
 
+import re
+
 from django import template
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -31,3 +35,16 @@ def querystring(query_dict, **kwargs):
     for key, value in kwargs.items():
         new_query[key] = value
     return new_query.urlencode()
+
+
+@register.filter(name='highlight')
+def highlight(text, keyword):
+    """Wrap case-insensitive occurrences of ``keyword`` in ``<mark>`` tags."""
+    if not keyword or not text:
+        return text
+    pattern = re.compile(re.escape(keyword), re.IGNORECASE)
+    highlighted = pattern.sub(
+        lambda m: f'<mark class="bg-warning text-dark">{escape(m.group())}</mark>',
+        escape(text),
+    )
+    return mark_safe(highlighted)

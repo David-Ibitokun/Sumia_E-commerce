@@ -3,6 +3,7 @@
 They mirror the non-AJAX cart and wishlist views but answer with the payload
 the JavaScript expects: ``status``, ``message`` and the counters it repaints.
 """
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -18,6 +19,7 @@ from .utils import json_error
 
 LOGIN_REQUIRED_MESSAGE = "Please log in to continue."
 SEARCH_RESULT_LIMIT = 8
+SEARCH_CACHE_TIMEOUT = 300
 
 
 @require_GET
@@ -140,18 +142,33 @@ def ajax_search(request):
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '')
 
-    products = (
-        catalog.search_products(query, category_id, only_available=True)
-        if len(query) >= 2
-        else Product.objects.none()
-    )
+    if len(query) >= 2:
+        cache_key = f'ajax_search:q={query}:cat={category_id}'
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return JsonResponse(cached)
 
-    return JsonResponse(
-        {
+        products = catalog.search_products(query, category_id, only_available=True)
+        total = products.count()
+        limited = products[:SEARCH_RESULT_LIMIT]
+
+        result = {
             'query': query,
-            'results': [_serialize(product) for product in products[:SEARCH_RESULT_LIMIT]],
+            'total': total,
+            'has_more': total > SEARCH_RESULT_LIMIT,
+            'results': [_serialize(product) for product in limited],
         }
-    )
+        cache.set(cache_key, result, SEARCH_CACHE_TIMEOUT)
+        return JsonResponse(result)
+    else:
+        return JsonResponse(
+            {
+                'query': query,
+                'total': 0,
+                'has_more': False,
+                'results': [],
+            }
+        )
 
 
 def _serialize(product):
