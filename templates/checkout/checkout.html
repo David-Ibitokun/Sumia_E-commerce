@@ -125,14 +125,12 @@
                                 </div>
                             </div>
 
-                            <h6 class="fw-bold mb-3 text-dark">{{ form.payment_method.label }}</h6>
-                            <div class="mb-4">
+                            <h6 class="fw-bold mb-3 text-dark" id="payment-method-label">{{ form.payment_method.label }}</h6>
+                            <div class="mb-4" role="radiogroup" aria-labelledby="payment-method-label">
                                 {% for radio in form.payment_method %}
                                     <div class="form-check mb-2">
-                                        <div class="form-check">
-                                            {{ radio.tag }}
-                                            <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-                                        </div>
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
                                     </div>
                                 {% endfor %}
                                 {% for error in form.payment_method.errors %}

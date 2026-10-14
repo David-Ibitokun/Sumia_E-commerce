@@ -58,7 +58,7 @@ def ajax_remove_from_cart(request, item_id):
         return json_error(LOGIN_REQUIRED_MESSAGE, status=401)
 
     product_name = cart_service.remove_item(request.user, item_id)
-    remaining = CartItem.objects.filter(cart__user=request.user).count()
+    remaining = cart_service.item_count(request.user)
 
     return JsonResponse(
         {
@@ -99,7 +99,7 @@ def ajax_update_cart_quantity(request, item_id):
 def ajax_add_to_wishlist(request, product_id):
     """Save a product to the wishlist, or confirm it is already there."""
     if not request.user.is_authenticated:
-        return json_error("Please log in to add items to your wishlist.", status=401)
+        return json_error(LOGIN_REQUIRED_MESSAGE, status=401)
 
     product = get_object_or_404(Product, id=product_id)
     created = wishlist_service.add_item(request.user, product)

@@ -1,0 +1,14 @@
+<div class="mb-5 d-flex flex-wrap justify-content-center gap-3">
+    <a href="{% url 'vendor_dashboard' %}" class="btn {% if request.resolver_match.url_name == 'vendor_dashboard' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-lg rounded-pill shadow-sm">
+        <i class="fas fa-chart-line me-2"></i> Dashboard
+    </a>
+    <a href="{% url 'add_product' %}" class="btn {% if request.resolver_match.url_name == 'add_product' %}btn-primary{% else %}btn-outline-secondary{% endif %} btn-lg rounded-pill shadow-sm">
+        <i class="fas fa-plus-circle me-2"></i> Add Product
+    </a>
+    <a href="{% url 'product_list' %}" class="btn {% if request.resolver_match.url_name == 'product_list' or request.resolver_match.url_name == 'edit_product' %}btn-primary{% else %}btn-outline-secondary{% endif %} btn-lg rounded-pill shadow-sm">
+        <i class="fas fa-boxes me-2"></i> My Products
+    </a>
+    <a href="{% url 'vendor_orders' %}" class="btn {% if 'order' in request.resolver_match.url_name %}btn-info text-white{% else %}btn-outline-info{% endif %} btn-lg rounded-pill shadow-sm">
+        <i class="fas fa-receipt me-2"></i> My Orders
+    </a>
+</div>

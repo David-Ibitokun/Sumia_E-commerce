@@ -22,6 +22,8 @@
             <p class="lead text-muted">Details for order placed by {{ order.user.get_full_name|default:order.user.username }} on {{ order.created_at|date:"M d, Y H:i" }}.</p>
         </div>
 
+        {% include 'vendor/partials/nav.html' %}
+
         <div class="row g-4">
             <!-- Vendor's Items in Order -->
             <div class="col-lg-8">
