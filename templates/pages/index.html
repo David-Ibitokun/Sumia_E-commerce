@@ -7,10 +7,10 @@
 {% block content %}
 
 <!-- Hero Section -->
-<section class="hero-section py-5 text-center bg-primary text-white rounded-bottom-4 shadow-lg mb-5">
-  <div class="container">
-    <h1 class="display-3 fw-bold mb-3 animate__animated animate__fadeInDown text-light">Welcome to Sumia</h1>
-    <p class="lead mb-4 animate__animated animate__fadeInUp">Shop the latest trends. Fast delivery. Secure checkout.</p>
+<section class="py-5 bg-white border-bottom mb-5">
+  <div class="container text-center py-4">
+    <h1 class="display-4 fw-bold text-dark mb-3">Welcome to Sumia</h1>
+    <p class="lead text-muted mb-0">Shop the latest trends. Fast delivery. Secure checkout.</p>
   </div>
 </section>
 
@@ -20,56 +20,48 @@
     <!-- Sidebar -->
     <aside class="col-lg-3">
       <!-- Categories for desktop -->
-      <div class="d-none d-lg-block bg-white p-4 rounded-4 shadow-sm">
-        <h3 class="text-primary fw-bold mb-4 text-center">Categories</h3>
+      <div class="d-none d-lg-block bg-white p-4 rounded-4 shadow-sm border">
+        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">Categories</h5>
         {% if form.category.errors %}
           <div class="alert alert-danger small mb-3 rounded-3">{{ form.category.errors }}</div>
         {% endif %}
-        <div class="accordion" id="categoryAccordion">
+        <div class="d-flex flex-column gap-2">
           {% for parent_category in top_level_categories %}
             {% if parent_category.slug %}
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading-{{ parent_category.slug }}">
-                  <a href="{% url 'category_detail' parent_category.slug %}" style="font-size: large;" class="accordion-button collapsed d-block text-decoration-none text-dark fw-bold px-3 py-2 rounded">
-                    {% if parent_category.icon %}
-                      <i class="{{ parent_category.icon }} me-2"></i>
-                    {% endif %}
-                    {{ parent_category.name }}
-                  </a>
-                </h2>
-              </div>
+              <a href="{% url 'category_detail' parent_category.slug %}" class="text-decoration-none text-dark fw-semibold p-2 rounded-3 d-flex align-items-center category-link">
+                {% if parent_category.icon %}
+                  <i class="{{ parent_category.icon }} me-2 text-muted" style="width: 20px;"></i>
+                {% endif %}
+                {{ parent_category.name }}
+              </a>
             {% endif %}
           {% endfor %}
         </div>
       </div>
 
       <!-- Button to trigger offcanvas sidebar on smaller screens -->
-      <div class="d-lg-none" style="position: fixed; top: 140px; right: 15px; z-index: 1040;">
-        <button class="btn btn-primary btn-lg shadow" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCategories" aria-controls="offcanvasCategories">
+      <div class="d-lg-none" style="position: fixed; bottom: 20px; right: 20px; z-index: 1040;">
+        <button class="btn btn-primary btn-lg rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCategories" aria-controls="offcanvasCategories">
           <i class="fas fa-list-ul"></i>
         </button>
       </div>
 
       <!-- Offcanvas Sidebar for smaller screens -->
       <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasCategories" aria-labelledby="offcanvasCategoriesLabel">
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasCategoriesLabel">Categories</h5>
+        <div class="offcanvas-header border-bottom">
+          <h5 class="offcanvas-title fw-bold" id="offcanvasCategoriesLabel">Categories</h5>
           <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-          <div class="accordion" id="categoryAccordionMobile">
+          <div class="d-flex flex-column gap-2">
             {% for parent_category in top_level_categories %}
               {% if parent_category.slug %}
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="heading-mobile-{{ parent_category.slug }}">
-                    <a href="{% url 'category_detail' parent_category.slug %}" style="font-size: large;" class="accordion-button collapsed d-block text-decoration-none text-dark fw-bold px-3 py-2 rounded">
-                      {% if parent_category.icon %}
-                        <i class="{{ parent_category.icon }} me-2"></i>
-                      {% endif %}
-                      {{ parent_category.name }}
-                    </a>
-                  </h2>
-                </div>
+                <a href="{% url 'category_detail' parent_category.slug %}" class="text-decoration-none text-dark fw-semibold p-2 rounded-3 d-flex align-items-center category-link">
+                  {% if parent_category.icon %}
+                    <i class="{{ parent_category.icon }} me-2 text-muted" style="width: 20px;"></i>
+                  {% endif %}
+                  {{ parent_category.name }}
+                </a>
               {% endif %}
             {% endfor %}
           </div>
@@ -79,53 +71,53 @@
 
     <!-- Featured Products -->
     <div class="col-lg-9">
-      <h2 class="text-center text-primary fw-bold mb-4">Featured Products</h2>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-dark mb-0">Featured Products</h4>
+      </div>
 
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
         {% for product in products %}
           <div class="col">
-            <div class="card h-100 shadow-sm border-0 rounded-4">
+            <div class="card h-100 shadow-sm border-0 rounded-4 product-item-card">
               <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none">
                 {% if product.image %}
-                  <img src="{{ product.image.url }}" class="card-img-top rounded-top-4" alt="{{ product.name }}" style="height: fit-content; object-fit: cover;">
+                  <img src="{{ product.image.url }}" class="card-img-top rounded-top-4 product-img" alt="{{ product.name }}">
                 {% else %}
-                  <img src="https://placehold.co/400x180/cccccc/333333?text=No+Image" class="card-img-top rounded-top-4" alt="No Image" style="height: fit-content; object-fit: cover;">
+                  <img src="https://placehold.co/400x180/cccccc/333333?text=No+Image" class="card-img-top rounded-top-4 product-img" alt="No Image">
                 {% endif %}
               </a>
               
-              <div class="card-body d-flex flex-column p-3">
-                <h5 class="card-title fw-bold text-truncate mb-2">
+              <div class="card-body d-flex flex-column p-4">
+                <h6 class="card-title fw-bold text-truncate mb-2">
                   <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
-                </h5>
+                </h6>
                 {% if product.brand %}
-                  <p class="card-text text-muted small mb-1">Brand: {{ product.brand.name }}</p>
+                  <p class="card-text text-muted small mb-2">Brand: {{ product.brand.name }}</p>
                 {% endif %}
-                <div class="mb-2">
+                <div class="mb-3">
                   {% if product.discount_price %}
                     <span class="text-danger fw-bold fs-5">₦{{ product.discount_price|intcomma }}</span>
-                    <span class="text-muted text-decoration-line-through ms-2">₦{{ product.price|intcomma }}</span>
-                    <span class="badge bg-danger ms-2">{{ product.get_discount_percent }}% OFF</span>
+                    <span class="text-muted text-decoration-line-through ms-2 small">₦{{ product.price|intcomma }}</span>
+                    <span class="badge bg-success ms-2">{{ product.get_discount_percent }}% OFF</span>
                   {% else %}
                     <span class="text-primary fw-bold fs-5">₦{{ product.price|intcomma }}</span>
                   {% endif %}
                 </div>
-                <div class="mt-auto d-flex justify-content-between align-items-center">
+                
+                <div class="mt-auto d-flex justify-content-between align-items-center gap-2">
                   {% if product.is_available and product.stock_quantity > 0 %}
-                    <form action="{% url 'add_to_cart' product.id %}" method="post" class="ajax-add-to-cart d-inline" data-ajax-url="{% url 'ajax_add_to_cart' product.id %}">
+                    <form action="{% url 'add_to_cart' product.id %}" method="post" class="ajax-add-to-cart flex-grow-1" data-ajax-url="{% url 'ajax_add_to_cart' product.id %}">
                       {% csrf_token %}
                       <input type="hidden" name="quantity" value="1">
-                      <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">
+                      <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 py-2">
                         <i class="fas fa-shopping-cart me-1"></i> Add to Cart
                       </button>
                     </form>
-                    <a href="{% url 'add_to_wishlist' product.id %}" class="ajax-add-to-wishlist btn btn-outline-danger btn-sm rounded-pill" title="Add to Wishlist" data-ajax-url="{% url 'ajax_add_to_wishlist' product.id %}">
+                    <a href="{% url 'add_to_wishlist' product.id %}" class="ajax-add-to-wishlist btn btn-outline-danger btn-sm rounded-pill d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="Add to Wishlist" data-ajax-url="{% url 'ajax_add_to_wishlist' product.id %}">
                       <i class="far fa-heart"></i>
                     </a>
                   {% else %}
-                    <span class="badge bg-danger px-3 py-2 rounded-pill">Out of Stock</span>
-                    <a href="{% url 'add_to_wishlist' product.id %}" class="btn btn-outline-danger btn-sm rounded-pill disabled" title="Add to Wishlist">
-                      <i class="far fa-heart"></i>
-                    </a>
+                    <span class="badge bg-secondary py-2 rounded-pill w-100">Out of Stock</span>
                   {% endif %}
                 </div>
               </div>
@@ -133,11 +125,10 @@
           </div>
         {% empty %}
           <div class="col-12">
-            <div class="alert alert-info text-center py-4 my-4 rounded-3 shadow-sm" role="alert">
-              <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> No Featured Products!</h4>
-              <p>It looks like there are no products to feature right now.</p>
-              <hr>
-              <p class="mb-0">Check back later or explore our full <a href="{% url 'home' %}" class="alert-link">shop</a>.</p>
+            <div class="alert alert-light text-center py-5 my-4 rounded-4 border shadow-sm" role="alert">
+              <h5 class="fw-bold text-dark">No Featured Products</h5>
+              <p class="text-muted mb-3">It looks like there are no products to feature right now.</p>
+              <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4 btn-sm">Explore Shop</a>
             </div>
           </div>
         {% endfor %}
@@ -146,18 +137,21 @@
   </div>
 </div>
 
-<!-- Optional Custom Styling -->
 <style>
-  .hero-section {
-    background: linear-gradient(45deg, #ffc43f, #ffc235);
-    padding: 80px 0;
-    border-radius: 0 0 2rem 2rem;
+  .product-item-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   }
-  .accordion-button {
+  .product-item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.08)!important;
+  }
+  .product-img {
+    height: 180px;
+    object-fit: cover;
+  }
+  .category-link:hover {
     background-color: #f8f9fa;
-  }
-  .accordion-button:hover {
-    background-color: #e9ecef;
+    color: #0d6efd !important;
   }
 </style>
 

@@ -1,15 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load widget_tweaks %} {# Keep widget_tweaks for other fields #}
+{% load widget_tweaks %}
 
 {% block title %}Edit Product - {{ product.name }}{% endblock %}
 
 {% block content %}
-{# --- START: Inline CSS for clickable categories and general styling enhancements --- #}
 <style>
-    /* Custom Styles for Clickable Category Choices */
-
-    /* Hide the actual radio button */
     .visually-hidden {
         position: absolute !important;
         width: 1px !important;
@@ -21,102 +17,54 @@
         white-space: nowrap !important;
         border: 0 !important;
     }
-
-    /* Style for the clickable category choice container */
     .category-choice {
         cursor: pointer;
-        background-color: #f8f9fa; /* Light background */
-        border: 1px solid #dee2e6; /* Light gray border */
-        border-radius: .5rem; /* More rounded corners */
-        transition: all 0.2s ease-in-out; /* Smooth transition for hover/selection */
-        display: flex; /* Use flex for icon and text alignment */
-        align-items: center; /* Vertically center icon and text */
-        padding: .75rem 1rem; /* More padding inside the clickable area */
-        font-size: 0.95rem; /* Slightly larger font */
-        color: #343a40; /* Darker text color */
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: .5rem;
+        transition: all 0.2s ease-in-out;
+        display: flex;
+        align-items: center;
+        padding: .75rem 1rem;
+        font-size: 0.95rem;
+        color: #343a40;
     }
-
-    /* Hover effect */
     .category-choice:hover {
-        background-color: #e9ecef; /* Slightly darker background on hover */
-        border-color: #0d6efd; /* Blue border on hover */
-        box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25); /* More prominent subtle shadow on hover */
+        background-color: #e9ecef;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
     }
-
-    /* Style for the selected category */
     .category-choice.selected {
-        background-color: #d1e7dd; /* Light green background for selected */
-        border-color: #198754; /* Green border for selected */
-        font-weight: bold; /* Make text bold for selected */
-        color: #0f5132; /* Darker text for selected */
-        box-shadow: 0 0 0 .25rem rgba(25, 135, 84, .25); /* Green shadow for selected */
+        background-color: #d1e7dd;
+        border-color: #198754;
+        font-weight: bold;
+        color: #0f5132;
+        box-shadow: 0 0 0 .25rem rgba(25, 135, 84, .25);
     }
-
-    /* Ensure the label takes full width for clicking */
     .category-choice .form-check-label {
-        cursor: pointer; /* Keep cursor pointer on label too */
-        flex-grow: 1; /* Allow label to take available space */
+        cursor: pointer;
+        flex-grow: 1;
     }
-
-    /* Added style for icons for better alignment */
     .accordion-button i,
     .category-choice i {
-        margin-right: 12px; /* More space between icon and text */
-        width: 1.5em; /* Ensure consistent width for icons */
-        text-align: center; /* Center icon within its allocated space */
-        color: #6c757d; /* Default icon color */
+        margin-right: 12px;
+        width: 1.5em;
+        text-align: center;
+        color: #6c757d;
     }
-
-    /* Color for selected category icons */
     .category-choice.selected i {
-        color: #198754; /* Green icon for selected */
+        color: #198754;
     }
-
-    /* Styling for accordion headers */
-    .accordion-button {
-        background-color: #f0f2f5; /* Slightly different background for accordion header */
-        font-weight: bold;
-        color: #343a40;
-        border-radius: .5rem; /* Rounded corners for accordion button */
-    }
-    .accordion-item {
-        border: none; /* Remove default accordion item borders */
-        margin-bottom: 0.5rem; /* Space between accordion items */
-        border-radius: .5rem; /* Rounded corners for accordion item */
-        overflow: hidden; /* Ensure rounded corners apply correctly */
-    }
-    .accordion-body {
-        background-color: #ffffff; /* White background for accordion body */
-        border-top: 1px solid #e9ecef; /* Light border at the top of the body */
-    }
-    .accordion-button:not(.collapsed) {
-        background-color: #e2e6ea; /* Slightly darker when open */
-        color: #0d6efd; /* Blue text when open */
-        box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
-    }
-    .accordion-button:not(.collapsed) i {
-        color: #0d6efd; /* Blue icon when open */
-    }
-
-    /* Form control specific styling */
     .form-control, .form-select {
-        border-radius: .5rem; /* Consistent rounded corners */
-        padding: .75rem 1rem; /* More padding */
-        border: 1px solid #ced4da; /* Standard border */
-        box-shadow: inset 0 1px 2px rgba(0,0,0,.075); /* Subtle inner shadow */
+        border-radius: .5rem;
+        padding: .75rem 1rem;
+        border: 1px solid #ced4da;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
     }
     .form-control:focus, .form-select:focus {
         border-color: #86b7fe;
         box-shadow: 0 0 0 .25rem rgba(13,110,253,.25);
     }
-
-    /* Checkbox styling */
-    .form-check-input:checked {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-
-    /* Image preview specific styles */
     #image-preview-container {
         border: 2px dashed #ced4da;
         border-radius: .5rem;
@@ -131,19 +79,20 @@
     #image-preview {
         max-width: 100%;
         max-height: 150px;
-        object-fit: contain; /* Ensures the entire image is visible */
-        display: none; /* Hidden by default until an image is loaded */
+        object-fit: contain;
+        display: none;
     }
     #image-preview-placeholder {
         color: #6c757d;
         font-style: italic;
     }
 </style>
-{# --- END: Inline CSS for clickable categories and general styling enhancements --- #}
 
 {{ form.media.css }}
+
 <section class="py-5 bg-light">
     <div class="container">
+        <!-- Welcome Header -->
         <div class="mb-5 text-center">
             <p class="text-uppercase text-muted small fw-bold mb-2">Vendor Dashboard</p>
             <h2 class="fw-bold text-dark display-5 mb-2">Edit Product</h2>
@@ -152,6 +101,7 @@
 
         {% include 'vendor/partials/nav.html' %}
 
+        <!-- Edit Product Form Card -->
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -159,89 +109,87 @@
                 </div>
 
                 <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
+                    {% csrf_token %>
 
-            {# Display non-field errors if any form-wide issues #}
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger rounded-3" role="alert">
-                    {% for error in form.non_field_errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger rounded-3" role="alert">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">Product Name</label>
-                    {{ form.name}}
-                    {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
-                </div>
-                <div class="col-md-6">
-                    <label for="{{ form.brand_name.id_for_label }}" class="form-label fw-bold">Brand</label>
-                    {{ form.brand_name}}
-                    {% if form.brand_name.errors %}<div class="text-danger small mt-1">{{ form.brand_name.errors }}</div>{% endif %}
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">Description</label>
-                {{ form.description}}
-                {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
-            </div>
-
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <label for="{{ form.price.id_for_label }}" class="form-label fw-bold">Price (₦)</label>
-                    {{ form.price}}
-                    {% if form.price.errors %}<div class="text-danger small mt-1">{{ form.price.errors }}</div>{% endif %}
-                </div>
-                <div class="col-md-6">
-                    <label for="{{ form.discount_price.id_for_label }}" class="form-label fw-bold">Discount Price (₦) <small class="text-muted">(Optional)</small></label>
-                    {{ form.discount_price }}
-                    {% if form.discount_price.errors %}<div class="text-danger small mt-1">{{ form.discount_price.errors }}</div>{% endif %}
-                </div>
-            </div>
-
-            <div class="mb-4">
-                <label for="{{ form.tags.id_for_label }}" class="form-label fw-bold">Tags</label>
-                {{ form.tags }}
-                <div class="form-text text-muted mt-1">This helps users search for your products better.</div>
-                {% if form.tags.errors %}<div class="text-danger small mt-1">{{ form.tags.errors }}</div>{% endif %}
-            </div>
-
-            <div class="mb-4">
-                <label for="{{ form.image.id_for_label }}" class="form-label fw-bold">Product Image</label>
-                {{ form.image|add_class:"form-control" }}
-                {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors }}</div>{% endif %}
-                
-                {# Image Preview Container #}
-                <div id="image-preview-container">
-                    <img id="image-preview" src="#" alt="Image Preview">
-                    <span id="image-preview-placeholder">No image selected</span>
-                </div>
-            </div>
-
-            <div class="row mb-4 align-items-center">
-                <div class="col-md-6">
-                    <label for="{{ form.stock_quantity.id_for_label }}" class="form-label fw-bold">Stock Quantity</label>
-                    {{ form.stock_quantity }}
-                    {% if form.stock_quantity.errors %}<div class="text-danger small mt-1">{{ form.stock_quantity.errors }}</div>{% endif %}
-                </div>
-                <div class="col-md-6 mt-md-0 mt-3">
-                    <div class="form-check form-switch pt-4">
-                        {{ form.is_available|add_class:"form-check-input" }}
-                        <label class="form-check-label fw-bold" for="{{ form.is_available.id_for_label }}">Is Available for Sale</label>
-                        {% if form.is_available.errors %}<div class="text-danger small mt-1">{{ form.is_available.errors }}</div>{% endif %}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">Product Name</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.brand_name.id_for_label }}" class="form-label fw-bold">Brand Name</label>
+                            {{ form.brand_name }}
+                            {% if form.brand_name.errors %}<div class="text-danger small mt-1">{{ form.brand_name.errors }}</div>{% endif %}
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            {% include 'vendor/partials/category_selector.html' %}
+                    <div class="mb-4">
+                        <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+                    </div>
 
-            <div class="d-flex justify-content-end gap-3 mt-4">
-                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Cancel</a>
-                <button type="submit" class="btn btn-success btn-lg rounded-pill px-4">Save Changes</button>
-            </div>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.price.id_for_label }}" class="form-label fw-bold">Price (₦)</label>
+                            {{ form.price }}
+                            {% if form.price.errors %}<div class="text-danger small mt-1">{{ form.price.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.discount_price.id_for_label }}" class="form-label fw-bold">Discount Price (₦) <small class="text-muted">(Optional)</small></label>
+                            {{ form.discount_price }}
+                            {% if form.discount_price.errors %}<div class="text-danger small mt-1">{{ form.discount_price.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.tags.id_for_label }}" class="form-label fw-bold">Tags</label>
+                        {{ form.tags }}
+                        <div class="form-text text-muted mt-1">This helps users search for your products better.</div>
+                        {% if form.tags.errors %}<div class="text-danger small mt-1">{{ form.tags.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.image.id_for_label }}" class="form-label fw-bold">Product Image</label>
+                        {{ form.image|add_class:"form-control" }}
+                        {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors }}</div>{% endif %}
+                        
+                        <div id="image-preview-container">
+                            <img id="image-preview" src="#" alt="Image Preview">
+                            <span id="image-preview-placeholder">No image selected</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-md-6">
+                            <label for="{{ form.stock_quantity.id_for_label }}" class="form-label fw-bold">Stock Quantity</label>
+                            {{ form.stock_quantity }}
+                            {% if form.stock_quantity.errors %}<div class="text-danger small mt-1">{{ form.stock_quantity.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mt-md-0 mt-3">
+                            <div class="form-check form-switch pt-4">
+                                {{ form.is_available|add_class:"form-check-input" }}
+                                <label class="form-check-label fw-bold" for="{{ form.is_available.id_for_label }}">Is Available for Sale</label>
+                                {% if form.is_available.errors %}<div class="text-danger small mt-1">{{ form.is_available.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% include 'vendor/partials/category_selector.html' %}
+
+                    <div class="d-flex justify-content-end gap-3 mt-4">
+                        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-success btn-lg rounded-pill px-4">Save Changes</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -251,39 +199,27 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 {{ form.media.js }} 
 
-{# --- START: JavaScript for clickable categories and image preview --- #}
 <script>
     $(document).ready(function() {
-        // Function to update visual selection based on checked radio button
         function updateCategoryVisuals() {
-            // Remove 'selected' class from all category choices
             $('.category-choice').removeClass('selected');
-            // Add 'selected' class to the parent div of the currently checked radio
             $('.category-choice input[type="radio"]:checked').closest('.category-choice').addClass('selected');
         }
 
-        // Initial update when the page loads (important for existing product's category)
         updateCategoryVisuals();
 
-        // Handle clicks on the custom styled category-choice divs
         $('.category-choice').on('click', function() {
             var $this = $(this);
-            var radioId = $this.data('category-id'); // Get the category ID from the data attribute
-
-            // Find the corresponding hidden radio button and programmatically check it
+            var radioId = $this.data('category-id');
             $('#subcat-' + radioId).prop('checked', true);
-
-            // Update the visual selection
             updateCategoryVisuals();
         });
 
-        // Optional: Also handle direct changes to the radio buttons (e.g., if navigated by keyboard)
         $('.category-choice input[type="radio"]').on('change', function() {
             updateCategoryVisuals();
         });
 
-        // --- Image Preview Logic ---
-        const imageInput = $('#id_image'); // Assuming your image field id is 'id_image'
+        const imageInput = $('#id_image');
         const imagePreview = $('#image-preview');
         const imagePreviewPlaceholder = $('#image-preview-placeholder');
 
@@ -302,14 +238,10 @@
             }
         });
 
-        // If this is an edit page and there's an existing image, show it on load
-        // This assumes 'product' object is passed to the template on edit view
         {% if product and product.image %}
             imagePreview.attr('src', "{{ product.image.url }}").show();
             imagePreviewPlaceholder.hide();
         {% endif %}
     });
 </script>
-{# --- END: JavaScript for clickable categories and image preview --- #}
-
 {% endblock %}
