@@ -6,7 +6,7 @@ working; new code should use the canonical names.
 """
 from django.urls import path
 
-from .views import ajax, cart, catalog, checkout, orders, public, search
+from .views import ajax, cart, catalog, checkout, orders, public, reviews, search
 from .views import vendors, wishlist
 
 urlpatterns = [
@@ -43,6 +43,9 @@ urlpatterns = [
     path('wishlist/add/<int:product_id>/', wishlist.add_to_wishlist, name='add_to_wishlist'),
     path('wishlist/remove/<int:item_id>/', wishlist.remove_from_wishlist, name='remove_from_wishlist'),
 
+    # Reviews
+    path('product/<int:product_id>/review/', reviews.add_review, name='add_review'),
+
     # Customer orders
     path('my-orders/', orders.order_list, name='order_list'),
     path('orders/<str:order_number>/', orders.order_detail, name='order_detail'),
@@ -59,4 +62,5 @@ urlpatterns = [
     path('ajax/wishlist/add/<int:product_id>/', ajax.ajax_add_to_wishlist, name='ajax_add_to_wishlist'),
     path('ajax/wishlist/remove/<int:item_id>/', ajax.ajax_remove_from_wishlist, name='ajax_remove_from_wishlist'),
     path('ajax/search/', ajax.ajax_search, name='ajax_search'),
+    path('ajax/product/<int:product_id>/quick-view/', ajax.ajax_quick_view, name='ajax_quick_view'),
 ]

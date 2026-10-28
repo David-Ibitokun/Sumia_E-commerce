@@ -1,24 +1,28 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Service Unavailable - 503 | Sumia{% endblock %}
+
 {% block content %}
-
-<div style="margin: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center;">
-
-  <div style="background-color: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); max-width: 600px;">
-
-    <h1 style="font-size: 4rem; color: #f39c12; margin-bottom: 10px;">503</h1>
-    <h2 style="font-size: 1.8rem; color: #2c3e50;">Service Unavailable</h2>
-    <p style="color: #555; font-size: 1rem; margin-top: 15px;">
-      We're currently undergoing maintenance or facing high traffic.<br>
-      Please check back in a few minutes.
-    </p>
-
-    <a href="/" style="display: inline-block; margin-top: 25px; padding: 12px 25px; background-color: #e67e22; color: white; text-decoration: none; font-size: 1rem; border-radius: 5px;">
-      Back to Home
-    </a>
+<section class="py-5 bg-light d-flex align-items-center" style="min-height: 70vh;">
+  <div class="container text-center py-5">
+    <div class="card border-0 shadow-sm rounded-4 p-5 mx-auto bg-white" style="max-width: 580px;">
+      <div class="mb-3">
+        <span class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center text-warning" style="width: 100px; height: 100px;">
+          <i class="fas fa-wrench fa-3x"></i>
+        </span>
+      </div>
+      <h1 class="display-3 fw-extrabold text-dark mb-2" style="font-weight: 800;">503</h1>
+      <h3 class="fw-bold text-dark mb-2">Service Temporarily Unavailable</h3>
+      <p class="text-muted mx-auto mb-4" style="max-width: 420px;">
+        We're undergoing scheduled routine maintenance or handling high marketplace traffic. Please check back in a few minutes.
+      </p>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+          <i class="fas fa-rotate me-2"></i> Try Again / Home
+        </a>
+      </div>
+    </div>
   </div>
-
-</div>
-
+</section>
 {% endblock %}

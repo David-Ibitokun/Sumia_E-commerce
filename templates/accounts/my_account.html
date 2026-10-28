@@ -1,236 +1,197 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}My Account{% endblock %}
+{% block title %}My Account | Sumia{% endblock %}
 
 {% block content %}
-
-  <!-- Page Header with Gradient -->
-  <header class="bg-gradient-primary text-white py-5">
-    <div class="container">
+<section class="py-5 bg-light">
+  <div class="container">
+    
+    <!-- Welcome Header Banner -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 bg-white position-relative overflow-hidden" style="border: 1px solid var(--sumia-border) !important;">
       <div class="row align-items-center">
         <div class="col-md-8">
-          <h1 class="display-4 fw-bold mb-2">
-            <i class="fas fa-user-circle me-3"></i>My Account
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-warning text-dark fw-bold text-uppercase px-3 py-1 rounded-pill small">
+              {{ request.user.account_type|title }} Account
+            </span>
+            <span class="text-muted small">• Member since {{ request.user.date_joined|date:"M Y" }}</span>
+          </div>
+          <h1 class="display-6 fw-bold text-dark mb-2">
+            Welcome, {{ request.user.first_name|default:request.user.username }}!
           </h1>
-          <p class="lead mb-0 opacity-75">Welcome back, {{ request.user.first_name|default:request.user.username }}!</p>
+          <p class="lead text-muted mb-0" style="font-size: 1.05rem;">
+            Manage your account overview, personal settings, and store activities in one place.
+          </p>
         </div>
-        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-          <span class="badge bg-light text-dark fs-6 px-3 py-2 rounded-pill">
-            <i class="fas fa-shield-alt me-2"></i>{{ request.user.account_type|title }} Account
-          </span>
+        <div class="col-md-4 text-md-end mt-4 mt-md-0">
+          <a href="{% if request.user.account_type == 'vendor' %}{% url 'vendor_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+            <i class="fas fa-gauge-high me-2"></i> Open Dashboard
+          </a>
         </div>
       </div>
     </div>
-  </header>
 
-  <!-- Main Content -->
-  <section class="py-5 bg-light">
-    <div class="container">
-      
-      <!-- Messages -->
-      {% if messages %}
+    <!-- Messages -->
+    {% if messages %}
       <div class="row justify-content-center mb-4">
-        <div class="col-lg-10">
+        <div class="col-12">
           {% for message in messages %}
-          <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
-            <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% else %}check-circle{% endif %} me-2"></i>
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show rounded-4 shadow-sm mb-2" role="alert">
+              <i class="fas fa-{% if message.tags == 'error' %}triangle-exclamation text-danger{% else %}check-circle text-success{% endif %} me-2"></i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
           {% endfor %}
         </div>
       </div>
-      {% endif %}
+    {% endif %}
 
-      <div class="row g-4">
-        
-        <!-- Sidebar - Profile Summary -->
-        <div class="col-lg-4">
-          <div class="card shadow-sm border-0 rounded-4 h-100">
-            <div class="card-body text-center p-4">
-              <!-- Avatar -->
-              <div class="avatar-container mb-3">
-                <img src="{% static 'images/default-avatar.png' %}" alt="User Avatar" 
-                     class="img-fluid rounded-circle shadow" width="120" height="120" 
-                     style="border: 4px solid #e67e22;">
+    <div class="row g-4">
+      
+      <!-- Profile Card -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm border rounded-4 bg-white h-100">
+          <div class="card-body text-center p-4">
+            <div class="position-relative d-inline-block mb-3">
+              <div class="rounded-circle bg-warning text-dark fw-bold d-flex align-items-center justify-content-center shadow-sm border mx-auto" style="width: 90px; height: 90px; font-size: 2.2rem;">
+                {{ request.user.username|make_list|first|upper }}
               </div>
-              
-              <h4 class="fw-bold text-dark mb-1">{{ request.user.get_full_name|default:request.user.username }}</h4>
-              <p class="text-muted small mb-3">@{{ request.user.username }}</p>
-              
-              <hr class="my-3">
-              
-              <!-- Quick Info -->
-              <div class="text-start small">
-                <p class="mb-2"><i class="fas fa-envelope text-primary me-2"></i><strong>Email:</strong><br>{{ request.user.email|default:"Not provided" }}</p>
-                <p class="mb-2"><i class="fas fa-phone text-primary me-2"></i><strong>Phone:</strong><br>{{ request.user.phone_number|default:"Not provided" }}</p>
-                <p class="mb-0"><i class="fas fa-calendar text-primary me-2"></i><strong>Member Since:</strong><br>{{ request.user.date_joined|date:"M d, Y" }}</p>
-              </div>
-
-              <hr class="my-3">
-              
-              <a href="{% url 'my_profile' %}" class="btn btn-warning rounded-pill px-4 w-100 shadow-sm">
-                <i class="fas fa-edit me-2"></i>Edit Profile
-              </a>
             </div>
-          </div>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="col-lg-8">
-          
-          <!-- Account Management Cards -->
-          <div class="row g-4">
             
-            <!-- Orders Card -->
-            <div class="col-12">
-              <div class="card shadow-sm border-0 rounded-4 hover-lift h-100">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-start">
-                    <div class="icon-box bg-primary bg-opacity-10 rounded-3 p-3 me-4">
-                      <i class="fas fa-shopping-bag fa-2x text-primary"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                      <h3 class="h5 fw-bold text-dark mb-2">My Orders</h3>
-                      <p class="text-muted mb-3">Track your orders, view order history, and manage returns.</p>
-                      <a href="{% url 'order_history' %}" class="btn btn-outline-primary rounded-pill px-4">
-                        View Order History <i class="fas fa-arrow-right ms-2"></i>
-                      </a>
-                    </div>
-                  </div>
+            <h5 class="fw-bold text-dark mb-1">{{ request.user.get_full_name|default:request.user.username }}</h5>
+            <p class="text-muted small mb-3">@{{ request.user.username }}</p>
+            
+            <hr class="my-4 text-muted opacity-25">
+            
+            <div class="text-start small">
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-envelope text-warning fs-5 me-3" style="width: 20px;"></i>
+                <div>
+                  <strong class="d-block text-dark">Email</strong>
+                  <span class="text-muted">{{ request.user.email|default:"Not provided" }}</span>
+                </div>
+              </div>
+              
+              <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-phone text-primary fs-5 me-3" style="width: 20px;"></i>
+                <div>
+                  <strong class="d-block text-dark">Phone</strong>
+                  <span class="text-muted">{{ request.user.phone_number|default:"Not provided" }}</span>
+                </div>
+              </div>
+              
+              <div class="d-flex align-items-center">
+                <i class="fas fa-shield-check text-success fs-5 me-3" style="width: 20px;"></i>
+                <div>
+                  <strong class="d-block text-dark">Account Type</strong>
+                  <span class="text-muted text-capitalize">{{ request.user.account_type }}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Shipping Address Card -->
-            <div class="col-md-6">
-              <div class="card shadow-sm border-0 rounded-4 hover-lift h-100">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-start">
-                    <div class="icon-box bg-success bg-opacity-10 rounded-3 p-3 me-3">
-                      <i class="fas fa-map-marker-alt fa-2x text-success"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                      <h3 class="h5 fw-bold text-dark mb-2">Shipping Address</h3>
-                      <p class="text-muted small mb-3">Manage your delivery addresses</p>
-                      <a href="#" class="btn btn-outline-success rounded-pill px-3 btn-sm">
-                        Edit Address <i class="fas fa-edit ms-1"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Password Card -->
-            <div class="col-md-6">
-              <div class="card shadow-sm border-0 rounded-4 hover-lift h-100">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-start">
-                    <div class="icon-box bg-danger bg-opacity-10 rounded-3 p-3 me-3">
-                      <i class="fas fa-lock fa-2x text-danger"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                      <h3 class="h5 fw-bold text-dark mb-2">Change Password</h3>
-                      <p class="text-muted small mb-3">Keep your account secure</p>
-                      <a href="{% url 'password_change' %}" class="btn btn-outline-danger rounded-pill px-3 btn-sm">
-                        Change Password <i class="fas fa-key ms-1"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Preferences Card -->
-            <div class="col-md-6">
-              <div class="card shadow-sm border-0 rounded-4 hover-lift h-100">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-start">
-                    <div class="icon-box bg-info bg-opacity-10 rounded-3 p-3 me-3">
-                      <i class="fas fa-cog fa-2x text-info"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                      <h3 class="h5 fw-bold text-dark mb-2">Preferences</h3>
-                      <p class="text-muted small mb-3">Notification & privacy settings</p>
-                      <a href="#" class="btn btn-outline-info rounded-pill px-3 btn-sm">
-                        Settings <i class="fas fa-sliders-h ms-1"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Logout Card -->
-            <div class="col-md-6">
-              <div class="card shadow-sm border-0 rounded-4 hover-lift h-100 border-danger-subtle">
-                <div class="card-body p-4">
-                  <div class="d-flex align-items-start">
-                    <div class="icon-box bg-danger bg-opacity-10 rounded-3 p-3 me-3">
-                      <i class="fas fa-sign-out-alt fa-2x text-danger"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                      <h3 class="h5 fw-bold text-dark mb-2">Log Out</h3>
-                      <p class="text-muted small mb-3">Sign out of your account safely</p>
-                      <form method="post" action="{% url 'logout' %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger rounded-pill px-4 btn-sm">
-                          Log Out <i class="fas fa-arrow-right ms-1"></i>
-                        </button>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+            <hr class="my-4 text-muted opacity-25">
+            
+            <a href="{% url 'my_profile' %}" class="btn btn-outline-dark rounded-pill px-4 w-100 fw-semibold">
+              <i class="fas fa-user-gear me-2 text-warning"></i> Edit Profile
+            </a>
           </div>
         </div>
       </div>
+
+      <!-- Account Actions Grid -->
+      <div class="col-lg-8">
+        <div class="row g-4">
+          
+          <!-- Orders -->
+          <div class="col-md-6">
+            <div class="card shadow-sm border rounded-4 bg-white p-4 h-100 hover-lift">
+              <div class="d-flex align-items-start gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; background: #FFFBEB; color: #D97706;">
+                  <i class="fas fa-box-open fs-4"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h5 class="fw-bold text-dark mb-1">My Orders</h5>
+                  <p class="text-muted small mb-3">Track delivery progress, review invoices, and view receipts.</p>
+                  <a href="{% url 'order_list' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-semibold">
+                    View Orders <i class="fas fa-arrow-right ms-1 text-warning"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wishlist -->
+          <div class="col-md-6">
+            <div class="card shadow-sm border rounded-4 bg-white p-4 h-100 hover-lift">
+              <div class="d-flex align-items-start gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; background: #FEF2F2; color: #EF4444;">
+                  <i class="fas fa-heart fs-4"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h5 class="fw-bold text-dark mb-1">Saved Wishlist</h5>
+                  <p class="text-muted small mb-3">Manage products saved for later and move them into your cart.</p>
+                  <a href="{% url 'wishlist' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-semibold">
+                    Open Wishlist <i class="fas fa-arrow-right ms-1 text-danger"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cart -->
+          <div class="col-md-6">
+            <div class="card shadow-sm border rounded-4 bg-white p-4 h-100 hover-lift">
+              <div class="d-flex align-items-start gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; background: #EFF6FF; color: #3B82F6;">
+                  <i class="fas fa-shopping-cart fs-4"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h5 class="fw-bold text-dark mb-1">Shopping Cart</h5>
+                  <p class="text-muted small mb-3">View items ready for purchase and proceed to secure checkout.</p>
+                  <a href="{% url 'cart' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-semibold">
+                    Open Cart <i class="fas fa-arrow-right ms-1 text-primary"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Browse Store -->
+          <div class="col-md-6">
+            <div class="card shadow-sm border rounded-4 bg-white p-4 h-100 hover-lift">
+              <div class="d-flex align-items-start gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; background: #ECFDF5; color: #10B981;">
+                  <i class="fas fa-store fs-4"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h5 class="fw-bold text-dark mb-1">Marketplace Catalog</h5>
+                  <p class="text-muted small mb-3">Discover verified electronics, apparel, and daily deals.</p>
+                  <a href="{% url 'shop' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-semibold">
+                    Browse Shop <i class="fas fa-arrow-right ms-1 text-success"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sign Out -->
+          <div class="col-12">
+            <div class="card shadow-sm border rounded-4 bg-white p-4 d-flex flex-row justify-content-between align-items-center">
+              <div>
+                <h6 class="fw-bold text-dark mb-1">Sign Out of Sumia</h6>
+                <p class="text-muted small mb-0">End your active session securely.</p>
+              </div>
+              <a href="{% url 'logout' %}" class="btn btn-outline-danger rounded-pill px-4 btn-sm fw-semibold">
+                <i class="fas fa-sign-out-alt me-1"></i> Log Out
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
-  </section>
-
-  <!-- Custom Styles -->
-  <style>
-    .bg-gradient-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .hover-lift {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .hover-lift:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    .icon-box {
-      min-width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .avatar-container {
-      position: relative;
-      display: inline-block;
-    }
-    
-    .avatar-container::after {
-      content: '';
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-      width: 20px;
-      height: 20px;
-      background: #28a745;
-      border: 3px solid white;
-      border-radius: 50%;
-    }
-  </style>
-
+  </div>
+</section>
 {% endblock %}

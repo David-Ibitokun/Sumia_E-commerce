@@ -1,0 +1,53 @@
+<!-- Quick View Modal Component -->
+<div class="modal fade" id="quickViewModal" tabindex="-1" aria-labelledby="quickViewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+      <div class="modal-header border-0 pb-0">
+        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold" id="qv-category">Category</span>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 pt-2">
+        <div class="row g-4 align-items-center">
+          <div class="col-md-5">
+            <div class="quickview-img-wrap border">
+              <img src="" alt="" id="qv-image" class="img-fluid quickview-img">
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div id="qv-brand" class="small text-muted fw-semibold mb-1">Brand</div>
+            <h4 class="fw-bold text-dark mb-2" id="qv-name">Product Name</h4>
+            
+            <div class="d-flex align-items-baseline gap-2 mb-3">
+              <span class="h3 fw-extrabold text-danger mb-0" id="qv-price">₦0.00</span>
+              <span class="text-muted text-decoration-line-through small" id="qv-original-price"></span>
+              <span class="badge bg-danger rounded-pill px-2 py-1 small" id="qv-discount-badge" style="display:none;"></span>
+            </div>
+
+            <div class="mb-3">
+              <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill small" id="qv-stock">
+                In Stock
+              </span>
+            </div>
+
+            <p class="text-muted small mb-4" id="qv-description" style="max-height: 90px; overflow-y: auto;">
+              Product description goes here.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+              <form id="qv-cart-form" method="post" class="flex-grow-1">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" id="qv-add-btn" class="btn btn-primary rounded-pill w-100 fw-bold py-2 shadow-sm">
+                  <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                </button>
+              </form>
+              <a href="#" id="qv-view-details" class="btn btn-outline-dark rounded-pill px-3 py-2 fw-semibold">
+                Full Details <i class="fas fa-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

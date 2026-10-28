@@ -3,61 +3,152 @@
 {% load humanize %}
 {% load custom_filters %}
 
+{% block title %}Search Results for "{{ query }}" | Sumia{% endblock %}
+
 {% block content %}
 <div class="container my-5">
-  <h3 class="mb-4">Search Results for "{{ query }}"</h3>
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb breadcrumb-custom">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'shop' %}">Shop</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Search</li>
+    </ol>
+  </nav>
 
-{% if page_obj %}
-  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <p class="text-muted mb-0">
-      {{ paginator.count }} product{{ paginator.count|pluralize }} found
-      {% if query %}for "{{ query }}"{% endif %}
-      {% if selected_category_id %}within this category{% endif %}
-    </p>
+  <!-- Search Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">
+        Search Results for <span class="text-warning">"{{ query|default:'All' }}"</span>
+      </h3>
+      <p class="text-muted small mb-0">
+        Found <strong class="text-dark">{{ paginator.count|default:page_obj|length }}</strong> product{{ paginator.count|pluralize }} matching your query
+      </p>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <!-- Sort Selector -->
+      <form method="GET" action="{% url 'search' %}" class="d-inline-flex align-items-center gap-2">
+        <input type="hidden" name="q" value="{{ query }}">
+        {% if selected_category_id %}<input type="hidden" name="category" value="{{ selected_category_id }}">{% endif %}
+        <label for="sortSelector" class="small text-muted fw-semibold mb-0 d-none d-sm-inline">Sort:</label>
+        <select name="sort" id="sortSelector" class="form-select form-select-sm rounded-pill w-auto" onchange="this.form.submit()">
+          <option value="relevance" {% if current_sort == 'relevance' %}selected{% endif %}>Most Relevant</option>
+          <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+        </select>
+      </form>
+      <a href="{% url 'shop' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+        Clear Filter / View All
+      </a>
+    </div>
   </div>
 
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-    {% for product in page_obj %}
-      <div class="col">
-        <div class="card h-100 shadow-sm">
-          {% if product.image %}
-            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-          {% else %}
-            <img src="{% static 'images/no-image.png' %}" class="card-img-top" alt="No image">
-          {% endif %}
-          <div class="card-body">
-            <h5 class="card-title">{{ product.name|highlight:query }}</h5>
-            <p class="card-text">{{ product.description|truncatechars:80|highlight:query }}</p>
-            <p class="text-muted small mb-1">
-              <strong>Brand:</strong> {{ product.brand.name|default:'N/A' }} <br>
-              <strong>Category:</strong> {{ product.category.name|default:'Uncategorized' }}
-            </p>
+  {% if page_obj %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+      {% for product in page_obj %}
+        <div class="col">
+          <div class="card h-100 shadow-sm border rounded-4 product-item-card overflow-hidden bg-white position-relative">
+            <!-- Sale Badge -->
             {% if product.discount_price %}
-              <div class="text-danger fw-bold">
-                ₦{{ product.discount_price|intcomma }} <del class="text-muted">₦{{ product.price|intcomma }}</del>
-              </div>
-            {% else %}
-              <div class="fw-bold">₦{{ product.price|intcomma }}</div>
+              <span class="product-badge-discount">
+                -{{ product.get_discount_percent }}% OFF
+              </span>
             {% endif %}
-            <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline-primary mt-2">View</a>
+
+            <!-- Wishlist Floating Button -->
+            <a href="{% url 'add_to_wishlist' product.id %}" class="product-wishlist-btn ajax-add-to-wishlist" title="Add to Wishlist" data-ajax-url="{% url 'ajax_add_to_wishlist' product.id %}">
+              <i class="far fa-heart"></i>
+            </a>
+
+            <!-- Product Image -->
+            <div class="product-img-wrap">
+              <a href="{% url 'product_detail' product.slug %}" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none">
+                {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                {% else %}
+                  <img src="https://placehold.co/400x200/f1f5f9/64748b?text=No+Image" alt="No Image">
+                {% endif %}
+              </a>
+            </div>
+            
+            <!-- Details -->
+            <div class="product-card-body">
+              <div class="product-meta-row">
+                {% if product.brand %}
+                  <span>{{ product.brand.name }}</span>
+                {% else %}
+                  <span>Sumia Direct</span>
+                {% endif %}
+                {% if product.category %}
+                  <span class="badge bg-light text-muted border rounded-pill">{{ product.category.name }}</span>
+                {% endif %}
+              </div>
+
+              <h6 class="card-title fw-bold mb-2">
+                <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark product-title-link">
+                  {{ product.name|highlight:query }}
+                </a>
+              </h6>
+              
+              <div class="product-price-wrap">
+                {% if product.discount_price %}
+                  <div class="d-flex align-items-baseline">
+                    <span class="product-price-current text-danger">₦{{ product.discount_price|intcomma }}</span>
+                    <span class="product-price-original">₦{{ product.price|intcomma }}</span>
+                  </div>
+                {% else %}
+                  <div>
+                    <span class="product-price-current">₦{{ product.price|intcomma }}</span>
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="product-actions-wrap d-flex gap-2">
+                {% if product.is_available and product.stock_quantity > 0 %}
+                  <form action="{% url 'add_to_cart' product.id %}" method="post" class="ajax-add-to-cart flex-grow-1" data-ajax-url="{% url 'ajax_add_to_cart' product.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 py-2 fw-bold d-flex align-items-center justify-content-center shadow-none">
+                      <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                    </button>
+                  </form>
+                {% else %}
+                  <button class="btn btn-secondary btn-sm rounded-pill flex-grow-1 py-2 fw-semibold" disabled>
+                    Out of Stock
+                  </button>
+                {% endif %}
+                <button type="button" class="btn btn-outline-dark btn-sm rounded-circle d-flex align-items-center justify-content-center ajax-quick-view-btn" style="width: 36px; height: 36px; flex-shrink: 0;" title="Quick View" data-quickview-url="{% url 'ajax_quick_view' product.id %}">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+      {% endfor %}
+    </div>
+
+    <div class="mt-5">
+      {% include 'partials/paginator.html' %}
+    </div>
+  {% else %}
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center my-4">
+      <div class="mb-3">
+        <span class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+          <i class="fas fa-search fa-2x text-muted opacity-50"></i>
+        </span>
       </div>
-    {% empty %}
-      <div class="col-12">
-        <p>No products found.</p>
+      <h4 class="fw-bold text-dark mb-2">No Matching Products Found</h4>
+      <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+        We couldn't find any products matching "{{ query }}". Try checking for spelling errors, using more general terms, or browse our full store.
+      </p>
+      <div>
+        <a href="{% url 'shop' %}" class="btn btn-primary rounded-pill px-4 fw-bold">
+          <i class="fas fa-shopping-bag me-2"></i> Browse Complete Catalog
+        </a>
       </div>
-    {% endfor %}
-  </div>
-  {% include 'partials/paginator.html' %}
-{% else %}
-  <div class="text-center py-5">
-    <i class="fas fa-search fa-3x text-muted mb-3"></i>
-    <h4>No products found</h4>
-    <p class="text-muted">
-      {% if query %}Try a different search term or remove the category filter.{% else %}Browse our <a href="{% url 'shop' %}">full catalog</a> or refine your search above.{% endif %}
-    </p>
-  </div>
-{% endif %}
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

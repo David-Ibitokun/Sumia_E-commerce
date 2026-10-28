@@ -59,7 +59,10 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media/
-static/
+/static/admin/
+/static/jazzmin/
+/static/django_select2/
+/static/vendor/
 staticfiles_collected/
 
 # Flask stuff:

@@ -1,0 +1,395 @@
+/*
+ * theme.css  —  Sumia Yellow Theme Overrides
+ * Single source of truth for the #FFC43F accent palette.
+ * Loaded after style.css via base.html.
+ */
+
+/* ─── 1. CSS Variables ──────────────────────────────────────── */
+:root {
+  --sumia-yellow      : #FFC43F;
+  --sumia-yellow-dark : #F7A422;
+  --sumia-yellow-light: #FFF9EB;
+  --sumia-dark        : #222222;
+  --sumia-mid         : #444444;
+  --sumia-muted       : #747474;
+  --sumia-border      : #F0E6D0;
+  --sumia-bg          : #FAFAFA;
+  --sumia-radius      : 0.75rem;
+  --sumia-shadow      : 0 4px 24px rgba(0,0,0,.08);
+  --sumia-transition  : 0.25s ease;
+}
+
+/* ─── 2. Global ─────────────────────────────────────────────── */
+body {
+  background-color: var(--sumia-bg);
+  font-family: "Open Sans", sans-serif;
+  color: #444;
+}
+
+a {
+  transition: color var(--sumia-transition);
+}
+
+/* ─── 3. Header ─────────────────────────────────────────────── */
+header.sticky-top {
+  background: #fff !important;
+  border-bottom: 3px solid var(--sumia-yellow) !important;
+  box-shadow: 0 2px 12px rgba(255,196,63,.18) !important;
+}
+
+/* ─── 4. Icon Buttons (header cart / wishlist / user) ───────── */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sumia-yellow-light);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: var(--sumia-dark);
+  transition: background var(--sumia-transition), transform var(--sumia-transition), color var(--sumia-transition);
+  text-decoration: none;
+}
+
+.icon-btn:hover,
+.icon-btn:focus {
+  background: var(--sumia-yellow);
+  color: var(--sumia-dark);
+  transform: scale(1.08);
+  outline: none;
+}
+
+/* ─── 5. Primary Nav Links ──────────────────────────────────── */
+nav .nav-link {
+  font-weight: 600;
+  color: var(--sumia-mid);
+  position: relative;
+  padding-bottom: 0.25rem;
+  text-decoration: none;
+}
+
+nav .nav-link:hover,
+nav .nav-link.active {
+  color: var(--sumia-dark);
+}
+
+nav .nav-link.text-danger:hover {
+  color: #c0392b !important;
+}
+
+/* ─── 6. Search Bar ─────────────────────────────────────────── */
+header .form-select,
+header .form-control {
+  font-size: 0.92rem;
+}
+
+header form.d-flex:focus-within {
+  box-shadow: 0 0 0 2px var(--sumia-yellow);
+  border-radius: 50rem;
+}
+
+/* ─── 7. Page Section Headers ───────────────────────────────── */
+.page-header-sumia {
+  background: linear-gradient(135deg, var(--sumia-yellow) 0%, var(--sumia-yellow-dark) 100%);
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+}
+
+.page-header-sumia h1,
+.page-header-sumia h2 {
+  color: var(--sumia-dark);
+  font-weight: 800;
+}
+
+.page-header-sumia p {
+  color: rgba(34,34,34,.7);
+}
+
+.page-header-sumia .btn-back {
+  background: rgba(255,255,255,.85);
+  color: var(--sumia-dark);
+  border: none;
+  font-weight: 700;
+  border-radius: 50rem;
+  padding: .55rem 1.25rem;
+  transition: background var(--sumia-transition);
+}
+
+.page-header-sumia .btn-back:hover {
+  background: #fff;
+}
+
+/* ─── 8. Cards ──────────────────────────────────────────────── */
+.card {
+  border: none !important;
+  box-shadow: var(--sumia-shadow);
+  border-radius: var(--sumia-radius) !important;
+  transition: box-shadow var(--sumia-transition), transform var(--sumia-transition);
+}
+
+.card:hover {
+  box-shadow: 0 8px 36px rgba(255,196,63,.18);
+}
+
+/* stat cards on dashboards */
+.stat-card-icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  background: var(--sumia-yellow-light);
+  color: var(--sumia-dark);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* ─── 9. Tables ─────────────────────────────────────────────── */
+.table thead th {
+  background: var(--sumia-yellow-light);
+  color: var(--sumia-dark);
+  font-weight: 700;
+  border-bottom: 2px solid var(--sumia-yellow);
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.table tbody tr:hover {
+  background: #FFFBF0;
+}
+
+/* ─── 10. Buttons ───────────────────────────────────────────── */
+.btn-primary {
+  background: var(--sumia-yellow);
+  border-color: var(--sumia-yellow);
+  color: var(--sumia-dark);
+  font-weight: 700;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: var(--sumia-yellow-dark);
+  border-color: var(--sumia-yellow-dark);
+  color: var(--sumia-dark);
+}
+
+.btn-outline-primary {
+  color: var(--sumia-dark);
+  border-color: var(--sumia-yellow);
+  font-weight: 600;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background: var(--sumia-yellow);
+  border-color: var(--sumia-yellow);
+  color: var(--sumia-dark);
+}
+
+/* ─── 11. Forms ─────────────────────────────────────────────── */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--sumia-yellow);
+  box-shadow: 0 0 0 .2rem rgba(255,196,63,.25);
+}
+
+.input-group-text {
+  background: var(--sumia-yellow-light);
+  border-color: #e0d5bf;
+  color: var(--sumia-dark);
+}
+
+/* ─── 12. Badges ─────────────────────────────────────────────── */
+.badge.bg-primary {
+  background: var(--sumia-yellow) !important;
+  color: var(--sumia-dark) !important;
+}
+
+/* cart / wishlist count badges */
+.cart-count-badge,
+.wishlist-count-badge {
+  background: var(--sumia-yellow) !important;
+  color: var(--sumia-dark) !important;
+  font-size: .58rem !important;
+}
+
+/* ─── 13. Breadcrumbs ───────────────────────────────────────── */
+.breadcrumb {
+  background: #fff;
+  border: 1px solid var(--sumia-border);
+  border-radius: 50rem;
+  padding: .5rem 1.25rem;
+  font-size: .85rem;
+}
+
+.breadcrumb-item a {
+  color: var(--sumia-yellow-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+  color: var(--sumia-dark);
+  text-decoration: underline;
+}
+
+/* ─── 14. Pagination ─────────────────────────────────────────── */
+.page-link {
+  color: var(--sumia-dark);
+  border-color: var(--sumia-border);
+}
+
+.page-link:hover {
+  background: var(--sumia-yellow-light);
+  border-color: var(--sumia-yellow);
+  color: var(--sumia-dark);
+}
+
+.page-item.active .page-link {
+  background: var(--sumia-yellow);
+  border-color: var(--sumia-yellow);
+  color: var(--sumia-dark);
+  font-weight: 700;
+}
+
+/* ─── 15. Toast Notifications ───────────────────────────────── */
+#toast-container .toast {
+  border-left: 4px solid var(--sumia-yellow);
+  border-radius: .6rem;
+  box-shadow: var(--sumia-shadow);
+}
+
+/* ─── 16. Footer ─────────────────────────────────────────────── */
+footer {
+  background: var(--sumia-dark) !important;
+  color: #ccc;
+}
+
+footer h5 {
+  color: #fff;
+  font-weight: 700;
+}
+
+footer a {
+  color: #bbb;
+  text-decoration: none;
+  transition: color var(--sumia-transition);
+}
+
+footer a:hover {
+  color: var(--sumia-yellow) !important;
+}
+
+footer .btn-outline-light {
+  border-color: #555;
+  color: #bbb;
+}
+
+footer .btn-outline-light:hover {
+  background: var(--sumia-yellow);
+  border-color: var(--sumia-yellow);
+  color: var(--sumia-dark) !important;
+}
+
+footer hr {
+  border-color: #333;
+}
+
+/* ─── 17. Loading Overlay ───────────────────────────────────── */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1060;
+}
+
+.loading-overlay .spinner-border {
+  color: var(--sumia-yellow) !important;
+}
+
+/* ─── 18. Vendor Nav Pills ──────────────────────────────────── */
+.vendor-nav-pill.active-pill {
+  background: var(--sumia-yellow);
+  border-color: var(--sumia-yellow);
+  color: var(--sumia-dark);
+}
+
+/* ─── 19. Profile Page ──────────────────────────────────────── */
+.profile-avatar-ring {
+  border: 4px solid var(--sumia-yellow);
+}
+
+.avatar-badge-sumia {
+  background: var(--sumia-yellow);
+  color: var(--sumia-dark);
+  border: 3px solid #fff;
+}
+
+.avatar-badge-sumia:hover {
+  background: var(--sumia-yellow-dark);
+  transform: scale(1.1);
+}
+
+/* ─── 20. Auth Cards ────────────────────────────────────────── */
+.auth-card {
+  border-radius: var(--sumia-radius) !important;
+  box-shadow: var(--sumia-shadow) !important;
+}
+
+.auth-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(255,196,63,.2) !important;
+}
+
+/* ─── 21. Shop / Product Cards ──────────────────────────────── */
+.product-item,
+.card.product-card {
+  transition: box-shadow var(--sumia-transition), transform var(--sumia-transition);
+}
+
+.product-item:hover,
+.card.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(255,196,63,.2) !important;
+}
+
+/* ─── 22. Hero Section ──────────────────────────────────────── */
+.hero-section {
+  background: linear-gradient(135deg, var(--sumia-yellow) 0%, var(--sumia-yellow-dark) 100%) !important;
+  color: var(--sumia-dark) !important;
+}
+
+.hero-section h1,
+.hero-section p {
+  color: var(--sumia-dark) !important;
+  text-shadow: 0 1px 3px rgba(255,255,255,.4);
+}
+
+/* ─── 23. Category Sidebar ──────────────────────────────────── */
+.accordion-button:not(.collapsed) {
+  background: var(--sumia-yellow-light) !important;
+  color: var(--sumia-dark) !important;
+  box-shadow: none !important;
+}
+
+.accordion-button:hover {
+  background: var(--sumia-yellow-light) !important;
+}
+
+/* ─── 24. Empty State ───────────────────────────────────────── */
+.empty-state-icon {
+  font-size: 3.5rem;
+  color: var(--sumia-yellow);
+  opacity: .7;
+}
+
+/* ─── 25. Utility helpers ───────────────────────────────────── */
+.bg-sumia       { background-color: var(--sumia-yellow) !important; }
+.text-sumia     { color: var(--sumia-yellow) !important; }
+.border-sumia   { border-color: var(--sumia-yellow) !important; }
+.bg-sumia-light { background-color: var(--sumia-yellow-light) !important; }

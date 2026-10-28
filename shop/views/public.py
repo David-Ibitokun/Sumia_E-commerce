@@ -23,8 +23,18 @@ def shop(request):
 
 
 def product_detail(request, slug):
-    """Show one product with its breadcrumb and related items."""
+    """Show one product with its breadcrumb, related items, and reviews."""
+    from shop.forms import ReviewForm
+    from shop.services import reviews as review_service
+
     product = catalog.get_product(slug)
+    reviews = review_service.get_product_reviews(product)
+    rating_stats = review_service.get_product_rating_stats(product)
+    has_reviewed = (
+        request.user.is_authenticated
+        and reviews.filter(user=request.user).exists()
+    )
+
     return render(
         request,
         'catalog/product_detail.html',
@@ -32,6 +42,10 @@ def product_detail(request, slug):
             'product': product,
             'breadcrumb': categories.breadcrumb_for(product.category),
             'products': catalog.related_products(product),
+            'reviews': reviews,
+            'rating_stats': rating_stats,
+            'review_form': ReviewForm() if request.user.is_authenticated and not has_reviewed else None,
+            'has_reviewed': has_reviewed,
         },
     )
 

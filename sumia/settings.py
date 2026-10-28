@@ -207,10 +207,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles_collected'
 
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-else:
-    STATICFILES_DIRS = [BASE_DIR / 'static']
+
 
 # Media files (User uploads)
 MEDIA_URL = '/media/'

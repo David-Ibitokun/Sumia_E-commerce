@@ -133,6 +133,15 @@ class Brand(models.Model):
                 unique_slug = f"{original_slug}-{num}"
                 num += 1
             self.slug = unique_slug
+
+        # Ensure uploaded logo is converted to WebP
+        if self.logo and not getattr(self.logo, '_webp_converted', False):
+            from .utils.images import convert_image_to_webp
+            converted = convert_image_to_webp(self.logo)
+            if converted is not self.logo:
+                setattr(converted, '_webp_converted', True)
+                self.logo = converted
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -167,6 +176,16 @@ class Product(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(price__gte=0),
+                name='product_price_non_negative'
+            ),
+            models.CheckConstraint(
+                check=models.Q(stock_quantity__gte=0),
+                name='product_stock_non_negative'
+            ),
+        ]
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['brand', 'is_available']),
@@ -188,6 +207,15 @@ class Product(models.Model):
                 unique_slug = f"{original_slug}-{num}"
                 num += 1
             self.slug = unique_slug
+
+        # Ensure uploaded image is converted to WebP
+        if self.image and not getattr(self.image, '_webp_converted', False):
+            from .utils.images import convert_image_to_webp
+            converted = convert_image_to_webp(self.image)
+            if converted is not self.image:
+                setattr(converted, '_webp_converted', True)
+                self.image = converted
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -223,6 +251,18 @@ class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['cart', 'product'],
+                name='unique_product_per_cart'
+            ),
+            models.CheckConstraint(
+                check=models.Q(quantity__gt=0),
+                name='cart_item_quantity_positive'
+            ),
+        ]
 
     def get_total_price(self):
         return self.quantity * self.product.get_display_price()
@@ -343,3 +383,75 @@ class IdempotencyKey(models.Model):
 
     def __str__(self):
         return f"IdempotencyKey({self.key[:8]}...) for {self.user.username}"
+
+
+class ProductReview(models.Model):
+    RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
+    title = models.CharField(max_length=200)
+    comment = models.TextField()
+    is_verified_purchase = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('product', 'user')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['product', 'is_approved']),
+            models.Index(fields=['user', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.product.name} - {self.rating}/5 by {self.user}"
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='gallery_images'
+    )
+    image = models.ImageField(upload_to='products/gallery/%Y/%m/')
+    alt_text = models.CharField(max_length=200, blank=True)
+    is_primary = models.BooleanField(default=False)
+    sort_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sort_order', 'created_at']
+        indexes = [
+            models.Index(fields=['product', 'is_primary']),
+            models.Index(fields=['product', 'sort_order']),
+        ]
+
+    def __str__(self):
+        return f"{self.product.name} - Image {self.sort_order}"
+
+    def save(self, *args, **kwargs):
+        if self.is_primary:
+            ProductImage.objects.filter(
+                product=self.product, is_primary=True
+            ).exclude(pk=self.pk).update(is_primary=False)
+
+        # Ensure uploaded gallery image is converted to WebP
+        if self.image and not getattr(self.image, '_webp_converted', False):
+            from .utils.images import convert_image_to_webp
+            converted = convert_image_to_webp(self.image)
+            if converted is not self.image:
+                setattr(converted, '_webp_converted', True)
+                self.image = converted
+
+        super().save(*args, **kwargs)

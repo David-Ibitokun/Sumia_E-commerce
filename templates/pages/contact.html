@@ -1,111 +1,119 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Contact Us{% endblock %}
+{% block title %}Contact Support | Sumia Marketplace{% endblock %}
 
 {% block content %}
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-primary display-5 mb-3">Get in Touch</h2>
-            <p class="lead text-muted">We'd love to hear from you! Send us a message or find our contact details below.</p>
-        </div>
-
-        <div class="row g-4">
-            {# Contact Form Section #}
-            <div class="col-lg-7">
-                <div class="card shadow-lg border-0 rounded-4 p-4">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4 fw-bold text-dark">Send Us a Message</h4>
-                        <form action="#" method="post"> {# Action can be updated to a specific view if you implement form processing #}
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Your Name</label>
-                                <input type="text" class="form-control rounded-pill" id="name" name="name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Your Email</label>
-                                <input type="email" class="form-control rounded-pill" id="email" name="email" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="subject" class="form-label">Subject</label>
-                                <input type="text" class="form-control rounded-pill" id="subject" name="subject">
-                            </div>
-                            <div class="mb-3">
-                                <label for="message" class="form-label">Your Message</label>
-                                <textarea class="form-control rounded-4" id="message" name="message" rows="6" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm mt-3">
-                                <i class="fas fa-paper-plane me-2"></i> Send Message
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            {# Contact Info Section #}
-            <div class="col-lg-5">
-                <div class="card shadow-lg border-0 rounded-4 p-4 h-100 d-flex flex-column justify-content-between">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4 fw-bold text-dark">Contact Information</h4>
-                        <ul class="list-unstyled contact-info-list">
-                            <li class="d-flex align-items-start mb-3">
-                                <i class="fas fa-map-marker-alt text-primary fs-4 me-3 mt-1"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Our Location</h6>
-                                    <p class="mb-0 text-muted">123 E-commerce Street, Suite 456, Cityville, State, 12345</p>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-start mb-3">
-                                <i class="fas fa-envelope text-primary fs-4 me-3 mt-1"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Email Us</h6>
-                                    <p class="mb-0"><a href="mailto:info@sumia.com" class="text-decoration-none text-muted">info@sumia.com</a></p>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-start mb-3">
-                                <i class="fas fa-phone-alt text-primary fs-4 me-3 mt-1"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Call Us</h6>
-                                    <p class="mb-0"><a href="tel:+98034984089" class="text-decoration-none text-muted">+980-34984089</a></p>
-                                </div>
-                            </li>
-                            <li class="d-flex align-items-start mb-3">
-                                <i class="fas fa-clock text-primary fs-4 me-3 mt-1"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Business Hours</h6>
-                                    <p class="mb-0 text-muted">Mon - Fri: 9:00 AM - 6:00 PM</p>
-                                    <p class="mb-0 text-muted">Sat: 10:00 AM - 4:00 PM</p>
-                                    <p class="mb-0 text-muted">Sun: Closed</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-
-                    
-                </div>
-            </div>
-        </div>
+<!-- Contact Hero Banner -->
+<section class="sumia-hero-banner py-5 mb-4">
+  <div class="container text-center py-2">
+    <div class="sumia-trust-pill mx-auto mb-2">
+      <i class="fas fa-headset text-warning"></i>
+      <span>Customer Operations</span>
     </div>
+    <h1 class="display-5 fw-bold text-dark mb-2">Get in Touch with Us</h1>
+    <p class="lead text-muted mx-auto mb-0" style="max-width: 600px; font-size: 1.05rem;">
+      We're here to assist you with order inquiries, vendor onboarding, or general questions.
+    </p>
+  </div>
 </section>
 
-<style>
-    .contact-info-list li i {
-        min-width: 30px; /* Ensure icon has enough space */
-    }
-    .map-responsive {
-        position: relative;
-        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-        height: 0;
-        overflow: hidden;
-    }
-    .map-responsive iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border: 0;
-    }
-</style>
+<div class="container mb-5">
+  <div class="row g-4">
+    <!-- Contact Form Card -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border rounded-4 p-4 p-md-5 bg-white h-100">
+        <h4 class="fw-bold text-dark mb-2">Send Us a Direct Message</h4>
+        <p class="text-muted small mb-4">Fill out the form below and our team will get back to you within 24 hours.</p>
+
+        <form action="#" method="post" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="name" class="form-label">Full Name</label>
+              <input type="text" class="form-control rounded-pill" id="name" name="name" placeholder="John Doe" required>
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email Address</label>
+              <input type="email" class="form-control rounded-pill" id="email" name="email" placeholder="john@example.com" required>
+            </div>
+            <div class="col-12">
+              <label for="subject" class="form-label">Subject</label>
+              <input type="text" class="form-control rounded-pill" id="subject" name="subject" placeholder="How can we help?">
+            </div>
+            <div class="col-12">
+              <label for="message" class="form-label">Your Message</label>
+              <textarea class="form-control rounded-4" id="message" name="message" rows="5" placeholder="Write your inquiry here..." required></textarea>
+            </div>
+            <div class="col-12 pt-2">
+              <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                <i class="fas fa-paper-plane me-2"></i> Send Message
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Contact Info Cards -->
+    <div class="col-lg-5">
+      <div class="d-flex flex-column gap-3 h-100">
+        <!-- Call Card -->
+        <div class="card border rounded-4 shadow-sm p-4 bg-white hover-lift">
+          <div class="d-flex align-items-center gap-3">
+            <div class="sumia-feature-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div>
+              <span class="text-muted small text-uppercase fw-semibold">Helpline & Hotline</span>
+              <h5 class="fw-bold text-dark mb-0">
+                <a href="tel:+98034984089" class="text-decoration-none text-dark">+980-34984089</a>
+              </h5>
+              <span class="text-muted small">Mon - Sat: 8:00 AM - 8:00 PM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Card -->
+        <div class="card border rounded-4 shadow-sm p-4 bg-white hover-lift">
+          <div class="d-flex align-items-center gap-3">
+            <div class="sumia-feature-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div>
+              <span class="text-muted small text-uppercase fw-semibold">Email Assistance</span>
+              <h5 class="fw-bold text-dark mb-0">
+                <a href="mailto:support@sumia.com" class="text-decoration-none text-dark">support@sumia.com</a>
+              </h5>
+              <span class="text-muted small">Responses within 24 hours</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Card -->
+        <div class="card border rounded-4 shadow-sm p-4 bg-white hover-lift">
+          <div class="d-flex align-items-center gap-3">
+            <div class="sumia-feature-icon">
+              <i class="fas fa-location-dot"></i>
+            </div>
+            <div>
+              <span class="text-muted small text-uppercase fw-semibold">Head Office</span>
+              <h6 class="fw-bold text-dark mb-0">Sumia Marketplace HQ</h6>
+              <span class="text-muted small">123 E-Commerce Blvd, Lagos, Nigeria</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Teaser Card -->
+        <div class="card border rounded-4 shadow-sm p-4 bg-light mt-auto">
+          <h6 class="fw-bold text-dark mb-1">Frequently Asked Questions</h6>
+          <p class="text-muted small mb-3">Looking for immediate answers regarding order returns, tracking, or vendor accounts?</p>
+          <a href="{% url 'shop' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 align-self-start fw-semibold">
+            Visit Help Center
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -11,6 +11,7 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.http import Http404
 from django.shortcuts import redirect, render
 
+from pages.ratelimit import ratelimit
 from shop.forms import CheckoutForm
 from shop.services import cart as cart_service
 from shop.services import orders as order_service
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required(login_url='login')
+@ratelimit(capacity=10, refill_rate=0.5, key_prefix='rl_checkout')
 def checkout(request):
     """Review the cart and place the order."""
     cart = cart_service.get_cart(request.user)

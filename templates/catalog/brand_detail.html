@@ -3,113 +3,118 @@
 {% load humanize %}
 {% load custom_filters %}
 
-{% block title %}{{ brand.name }} Products{% endblock %}
+{% block title %}{{ brand.name }} Products | Sumia{% endblock %}
 
 {% block content %}
 <section class="py-5 bg-light">
-    <div class="container">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb bg-white px-3 py-3 rounded-pill shadow-sm">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'home' %}" class="text-decoration-none text-primary">Home</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a href="{% url 'brand_list' %}" class="text-decoration-none text-primary">Brands</a>
-                </li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">{{ brand.name }}</li>
-            </ol>
-        </nav>
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb breadcrumb-custom">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'brand_list' %}">Brands</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ brand.name }}</li>
+      </ol>
+    </nav>
 
-        <!-- Brand Header -->
-        <div class="text-center">
-            <div>
-                <div class="card-body">
-                    <h1 class="card-title display-4 fw-bold text-primary mb-3">{{ brand.name }}</h1>
-                    {% if brand.description %}
-                        <p class="lead text-muted">{{ brand.description }}</p>
-                    {% else %}
-                        <p class="lead text-muted">Explore products from {{ brand.name }}.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Products List -->
-        <div class="col-12">
-            {% if page_obj %}
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
-                    {% for product in page_obj %}
-                        <div class="col">
-                            <div class="card h-100 shadow-sm rounded-4 border-0 product-card">
-                                <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark">
-                                    {% if product.image %}
-                                        <img src="{{ product.image.url }}" class="card-img-top rounded-top-4" alt="{{ product.name }}" style="height: fit-content; object-fit: cover;">
-                                    {% else %}
-                                        <img src="https://placehold.co/400x200/cccccc/333333?text=No+Image" class="card-img-top rounded-top-4" alt="No Image" style="height: fit-content; object-fit: cover;">
-                                    {% endif %}
-                                </a>
-                                <div class="card-body d-flex flex-column p-3">
-                                    <h5 class="card-title fw-bold text-truncate mb-2">
-                                        <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
-                                    </h5>
-                                    {% if product.category %}
-                                        <p class="card-text text-muted small mb-1">Category: {{ product.category.name }}</p>
-                                    {% endif %}
-                                    <p class="card-text mb-2">
-                                        {% if product.discount_price %}
-                                            <span class="text-danger fw-bold fs-5">₦{{ product.discount_price|intcomma }}</span>
-                                            <span class="text-muted text-decoration-line-through ms-2">₦{{ product.price|intcomma }}</span>
-                                            <span class="badge bg-danger ms-2">{{ product.get_discount_percent }}% OFF</span>
-                                        {% else %}
-                                            <span class="text-primary fw-bold fs-5">₦{{ product.price|intcomma }}</span>
-                                        {% endif %}
-                                    </p>
-                                    <div class="mt-auto d-flex justify-content-between align-items-center">
-                                        {% if product.is_available and product.stock_quantity > 0 %}
-                                            <form action="{% url 'add_to_cart' product.id %}" method="post" class="ajax-add-to-cart d-inline" data-ajax-url="{% url 'ajax_add_to_cart' product.id %}">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="quantity" value="1">
-                                                <button type="submit" class="btn btn-warning btn-sm rounded-pill px-3">
-                                                    <i class="fas fa-shopping-cart me-1"></i> Add to Cart
-                                                </button>
-                                            </form>
-                                            <a href="{% url 'add_to_wishlist' product.id %}" class="ajax-add-to-wishlist btn btn-outline-danger btn-sm rounded-pill" title="Add to Wishlist" data-ajax-url="{% url 'ajax_add_to_wishlist' product.id %}">
-                                                <i class="far fa-heart"></i>
-                                            </a>
-                                        {% else %}
-                                            <span class="badge bg-danger px-3 py-2 rounded-pill">Out of Stock</span>
-                                            <a href="{% url 'add_to_wishlist' product.id %}" class="btn btn-outline-danger btn-sm rounded-pill disabled" title="Add to Wishlist">
-                                                <i class="far fa-heart"></i>
-                                            </a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% empty %}
-                        <div class="col-12">
-                            <div class="alert alert-info text-center py-4 my-4 rounded-3 shadow-sm" role="alert">
-                                <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> No Products Found!</h4>
-                                <p>It looks like there are no products listed for this brand yet.</p>
-                                <hr>
-                                <p class="mb-0">Check back later or explore other brands!</p>
-                                <a href="{% url 'home' %}" class="btn btn-primary mt-3 rounded-pill">Continue Shopping</a>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                {% include 'partials/paginator.html' %}
-            {% else %}
-                <div class="alert alert-info text-center py-4 my-4 rounded-3 shadow-sm" role="alert">
-                    <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> No Products Found!</h4>
-                    <p>It looks like there are no products listed for this brand yet.</p>
-                    <hr>
-                    <p class="mb-0">Check back later or explore other brands!</p>
-                    <a href="{% url 'home' %}" class="btn btn-primary mt-3 rounded-pill">Continue Shopping</a>
-                </div>
-            {% endif %}
-        </div>
+    <!-- Brand Header -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5 text-center sumia-cta-banner">
+      <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-uppercase mx-auto mb-2 shadow-sm" style="font-size: 0.75rem;">
+        <i class="fas fa-award me-1"></i> Brand Collection
+      </span>
+      <h1 class="display-5 fw-bold text-dark mb-2">{{ brand.name }}</h1>
+      <p class="lead text-muted mx-auto mb-0" style="max-width: 600px; font-size: 1.05rem;">
+        {% if brand.description %}{{ brand.description }}{% else %}Explore verified, authentic products from {{ brand.name }}.{% endif %}
+      </p>
     </div>
+
+    <!-- Products List -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+      {% if page_obj %}
+        {% for product in page_obj %}
+          <div class="col">
+            <div class="card h-100 shadow-sm border rounded-4 product-item-card overflow-hidden bg-white position-relative">
+              {% if product.discount_price %}
+                <span class="product-badge-discount">
+                  -{{ product.get_discount_percent }}% OFF
+                </span>
+              {% endif %}
+
+              <a href="{% url 'add_to_wishlist' product.id %}" class="product-wishlist-btn ajax-add-to-wishlist" title="Add to Wishlist" data-ajax-url="{% url 'ajax_add_to_wishlist' product.id %}">
+                <i class="far fa-heart"></i>
+              </a>
+
+              <div class="product-img-wrap">
+                <a href="{% url 'product_detail' product.slug %}" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none">
+                  {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                  {% else %}
+                    <img src="https://placehold.co/400x200/f1f5f9/64748b?text=No+Image" alt="No Image">
+                  {% endif %}
+                </a>
+              </div>
+              
+              <div class="product-card-body">
+                <div class="product-meta-row">
+                  <span>{{ brand.name }}</span>
+                  {% if product.category %}
+                    <span class="badge bg-light text-muted border rounded-pill">{{ product.category.name }}</span>
+                  {% endif %}
+                </div>
+
+                <h6 class="card-title fw-bold mb-2">
+                  <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark product-title-link">
+                    {{ product.name }}
+                  </a>
+                </h6>
+                
+                <div class="product-price-wrap">
+                  {% if product.discount_price %}
+                    <div class="d-flex align-items-baseline">
+                      <span class="product-price-current text-danger">₦{{ product.discount_price|intcomma }}</span>
+                      <span class="product-price-original">₦{{ product.price|intcomma }}</span>
+                    </div>
+                  {% else %}
+                    <div>
+                      <span class="product-price-current">₦{{ product.price|intcomma }}</span>
+                    </div>
+                  {% endif %}
+                </div>
+                
+                <div class="product-actions-wrap">
+                  {% if product.is_available and product.stock_quantity > 0 %}
+                    <form action="{% url 'add_to_cart' product.id %}" method="post" class="ajax-add-to-cart flex-grow-1" data-ajax-url="{% url 'ajax_add_to_cart' product.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="quantity" value="1">
+                      <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 py-2 fw-bold d-flex align-items-center justify-content-center shadow-none">
+                        <i class="fas fa-cart-plus me-2"></i> Add to Cart
+                      </button>
+                    </form>
+                  {% else %}
+                    <button class="btn btn-secondary btn-sm rounded-pill w-100 py-2 fw-semibold" disabled>
+                      Out of Stock
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="alert alert-light text-center py-5 my-4 rounded-4 border shadow-sm" role="alert">
+            <i class="fas fa-box-open fa-3x text-muted mb-3 opacity-50"></i>
+            <h5 class="fw-bold text-dark">No Products Found for {{ brand.name }}</h5>
+            <p class="text-muted mb-3">Check back soon as sellers add more products from this brand.</p>
+            <a href="{% url 'shop' %}" class="btn btn-primary rounded-pill px-4 btn-sm">Explore All Products</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="mt-5">
+      {% include 'partials/paginator.html' %}
+    </div>
+  </div>
 </section>
 {% endblock %}

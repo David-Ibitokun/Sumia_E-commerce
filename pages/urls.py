@@ -7,6 +7,7 @@ urlpatterns = [
     path('', public.home, name='home'),
     path('about/', public.about, name='about'),
     path('contact/', public.contact, name='contact'),
+    path('health/', public.health_check, name='health_check'),
     path('my-account/', account.my_account, name='my_account'),
     path('myAccount/', account.my_account, name='myAccount'),  # legacy alias
 

@@ -2,46 +2,197 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Home - Sumia{% endblock %}
+{% block title %}Sumia - Modern Multi-Vendor Shopping Marketplace{% endblock %}
 
 {% block content %}
 
 <!-- Hero Section -->
-<section class="py-5 bg-white border-bottom mb-5">
-  <div class="container text-center py-4">
-    <h1 class="display-4 fw-bold text-dark mb-3">Welcome to Sumia</h1>
-    <p class="lead text-muted mb-0">Shop the latest trends. Fast delivery. Secure checkout.</p>
+<section class="sumia-hero-banner py-5 position-relative">
+  <div class="container py-lg-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7 text-center text-lg-start">
+        <div class="sumia-trust-pill">
+          <i class="fas fa-sparkles text-warning"></i>
+          <span>Welcome to Sumia Marketplace</span>
+          <span class="badge bg-warning text-dark ms-1">New Deals</span>
+        </div>
+        <h1 class="display-4 fw-extrabold text-dark mb-3 lh-sm" style="font-weight: 800;">
+          Discover Quality Products <br class="d-none d-md-block">at Unbeatable Prices
+        </h1>
+        <p class="lead text-muted mb-4 pe-lg-4 fs-5">
+          Shop verified electronics, trending fashion, home essentials, and vendor exclusives with fast nationwide delivery and guaranteed buyer protection.
+        </p>
+        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+          <a href="{% url 'shop' %}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm fw-bold">
+            <i class="fas fa-shopping-bag me-2"></i> Browse All Products
+          </a>
+          <a href="#featured-products" class="btn btn-outline-dark btn-lg rounded-pill px-4 fw-semibold">
+            Featured Deals <i class="fas fa-arrow-down ms-1"></i>
+          </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-4 mt-5 justify-content-center justify-content-lg-start pt-2 border-top">
+          <div>
+            <h4 class="fw-bold mb-0 text-dark">5,000+</h4>
+            <span class="text-muted small">Products Listed</span>
+          </div>
+          <div class="border-start ps-4">
+            <h4 class="fw-bold mb-0 text-dark">100%</h4>
+            <span class="text-muted small">Verified Quality</span>
+          </div>
+          <div class="border-start ps-4">
+            <h4 class="fw-bold mb-0 text-dark">24/7</h4>
+            <span class="text-muted small">Customer Support</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5 d-none d-lg-block text-center">
+        <div class="position-relative d-inline-block">
+          <div class="p-4 rounded-4 bg-white shadow-lg border text-start" style="max-width: 420px;">
+            <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+              <div>
+                <span class="text-uppercase fw-bold text-muted small">Why Shoppers Choose Us</span>
+                <h5 class="fw-bold mb-0 text-dark">The Sumia Guarantee</h5>
+              </div>
+              <span class="badge bg-success bg-opacity-10 text-success p-2 rounded-circle">
+                <i class="fas fa-shield-check fs-4"></i>
+              </span>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+              <div class="rounded-circle bg-warning bg-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                <i class="fas fa-store text-warning fs-5"></i>
+              </div>
+              <div>
+                <div class="fw-bold text-dark">Multi-Vendor Marketplace</div>
+                <div class="text-muted small">Direct pricing from verified suppliers</div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+              <div class="rounded-circle bg-success bg-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                <i class="fas fa-truck-fast text-success fs-5"></i>
+              </div>
+              <div>
+                <div class="fw-bold text-dark">Fast Nationwide Delivery</div>
+                <div class="text-muted small">Live tracking on every single order</div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+              <div class="rounded-circle bg-primary bg-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                <i class="fas fa-rotate-left text-primary fs-5"></i>
+              </div>
+              <div>
+                <div class="fw-bold text-dark">Seamless Returns</div>
+                <div class="text-muted small">Hassle-free 7-day refund policy</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
+<!-- Value Proposition Features Strip -->
+<div class="container my-5">
+  <div class="row g-3 g-md-4">
+    <div class="col-6 col-lg-3">
+      <div class="sumia-feature-card h-100">
+        <div class="sumia-feature-icon">
+          <i class="fas fa-truck-fast"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold text-dark mb-1">Fast Delivery</h6>
+          <p class="text-muted small mb-0">Free over ₦50,000</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="sumia-feature-card h-100">
+        <div class="sumia-feature-icon">
+          <i class="fas fa-shield-halved"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold text-dark mb-1">100% Genuine</h6>
+          <p class="text-muted small mb-0">Verified authenticity</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="sumia-feature-card h-100">
+        <div class="sumia-feature-icon">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold text-dark mb-1">Secure Payment</h6>
+          <p class="text-muted small mb-0">256-bit encrypted</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="sumia-feature-card h-100">
+        <div class="sumia-feature-icon">
+          <i class="fas fa-headset"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold text-dark mb-1">24/7 Support</h6>
+          <p class="text-muted small mb-0">Always here to help</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Main Content: Sidebar + Products -->
-<div class="container mb-5">
+<div class="container mb-5" id="featured-products">
   <div class="row g-4">
     <!-- Sidebar -->
     <aside class="col-lg-3">
       <!-- Categories for desktop -->
-      <div class="d-none d-lg-block bg-white p-4 rounded-4 shadow-sm border">
-        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">Categories</h5>
+      <div class="d-none d-lg-block bg-white p-4 rounded-4 shadow-sm border sticky-top" style="top: 130px; z-index: 10;">
+        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between">
+          <span><i class="fas fa-layer-group text-warning me-2"></i> Categories</span>
+          <span class="badge bg-light text-muted fw-normal" style="font-size: 0.75rem;">Browse</span>
+        </h5>
         {% if form.category.errors %}
           <div class="alert alert-danger small mb-3 rounded-3">{{ form.category.errors }}</div>
         {% endif %}
-        <div class="d-flex flex-column gap-2">
+        <div class="d-flex flex-column gap-1">
           {% for parent_category in top_level_categories %}
             {% if parent_category.slug %}
-              <a href="{% url 'category_detail' parent_category.slug %}" class="text-decoration-none text-dark fw-semibold p-2 rounded-3 d-flex align-items-center category-link">
-                {% if parent_category.icon %}
-                  <i class="{{ parent_category.icon }} me-2 text-muted" style="width: 20px;"></i>
-                {% endif %}
-                {{ parent_category.name }}
+              <a href="{% url 'category_detail' parent_category.slug %}" class="text-decoration-none text-dark fw-medium px-3 py-2 rounded-3 d-flex align-items-center justify-content-between category-link">
+                <span class="d-flex align-items-center">
+                  {% if parent_category.icon %}
+                    <i class="{{ parent_category.icon }} me-2 text-warning" style="width: 20px;"></i>
+                  {% else %}
+                    <i class="fas fa-tag me-2 text-muted" style="width: 20px;"></i>
+                  {% endif %}
+                  {{ parent_category.name }}
+                </span>
+                <i class="fas fa-chevron-right text-muted small opacity-50"></i>
               </a>
             {% endif %}
           {% endfor %}
         </div>
+
+        <hr class="my-4">
+        
+        <div class="bg-light p-3 rounded-3 text-center">
+          <i class="fas fa-store text-warning fs-3 mb-2"></i>
+          <h6 class="fw-bold text-dark mb-1">Are you a Merchant?</h6>
+          <p class="text-muted small mb-3">Open your vendor store and reach thousands of customers.</p>
+          <a href="{% url 'register' %}" class="btn btn-dark btn-sm rounded-pill w-100 fw-semibold">
+            Start Selling Today
+          </a>
+        </div>
       </div>
 
-      <!-- Button to trigger offcanvas sidebar on smaller screens -->
+      <!-- Offcanvas Mobile Trigger Button -->
       <div class="d-lg-none" style="position: fixed; bottom: 20px; right: 20px; z-index: 1040;">
-        <button class="btn btn-primary btn-lg rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCategories" aria-controls="offcanvasCategories">
+        <button class="btn btn-primary btn-lg rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCategories" aria-controls="offcanvasCategories" aria-label="Open Categories">
           <i class="fas fa-list-ul"></i>
         </button>
       </div>
@@ -49,7 +200,9 @@
       <!-- Offcanvas Sidebar for smaller screens -->
       <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasCategories" aria-labelledby="offcanvasCategoriesLabel">
         <div class="offcanvas-header border-bottom">
-          <h5 class="offcanvas-title fw-bold" id="offcanvasCategoriesLabel">Categories</h5>
+          <h5 class="offcanvas-title fw-bold" id="offcanvasCategoriesLabel">
+            <i class="fas fa-layer-group text-warning me-2"></i> All Categories
+          </h5>
           <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -58,7 +211,9 @@
               {% if parent_category.slug %}
                 <a href="{% url 'category_detail' parent_category.slug %}" class="text-decoration-none text-dark fw-semibold p-2 rounded-3 d-flex align-items-center category-link">
                   {% if parent_category.icon %}
-                    <i class="{{ parent_category.icon }} me-2 text-muted" style="width: 20px;"></i>
+                    <i class="{{ parent_category.icon }} me-2 text-warning" style="width: 20px;"></i>
+                  {% else %}
+                    <i class="fas fa-tag me-2 text-muted" style="width: 20px;"></i>
                   {% endif %}
                   {{ parent_category.name }}
                 </a>
@@ -69,56 +224,95 @@
       </div>
     </aside>
 
-    <!-- Featured Products -->
+    <!-- Featured Products Grid -->
     <div class="col-lg-9">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold text-dark mb-0">Featured Products</h4>
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+          <h3 class="fw-bold text-dark mb-1">Featured Products</h3>
+          <p class="text-muted small mb-0">Handpicked items curated by our top sellers</p>
+        </div>
+        <a href="{% url 'shop' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3 mt-2 mt-sm-0 fw-semibold">
+          View All Catalog <i class="fas fa-arrow-right ms-1"></i>
+        </a>
       </div>
 
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
         {% for product in products %}
           <div class="col">
-            <div class="card h-100 shadow-sm border-0 rounded-4 product-item-card">
-              <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none">
-                {% if product.image %}
-                  <img src="{{ product.image.url }}" class="card-img-top rounded-top-4 product-img" alt="{{ product.name }}">
-                {% else %}
-                  <img src="https://placehold.co/400x180/cccccc/333333?text=No+Image" class="card-img-top rounded-top-4 product-img" alt="No Image">
-                {% endif %}
-              </a>
+            <div class="card h-100 shadow-sm border rounded-4 product-item-card overflow-hidden bg-white position-relative">
               
-              <div class="card-body d-flex flex-column p-4">
-                <h6 class="card-title fw-bold text-truncate mb-2">
-                  <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
-                </h6>
-                {% if product.brand %}
-                  <p class="card-text text-muted small mb-2">Brand: {{ product.brand.name }}</p>
-                {% endif %}
-                <div class="mb-3">
-                  {% if product.discount_price %}
-                    <span class="text-danger fw-bold fs-5">₦{{ product.discount_price|intcomma }}</span>
-                    <span class="text-muted text-decoration-line-through ms-2 small">₦{{ product.price|intcomma }}</span>
-                    <span class="badge bg-success ms-2">{{ product.get_discount_percent }}% OFF</span>
+              <!-- Sale Badge -->
+              {% if product.discount_price %}
+                <span class="product-badge-discount">
+                  -{{ product.get_discount_percent }}% OFF
+                </span>
+              {% endif %}
+
+              <!-- Wishlist Floating Button -->
+              <a href="{% url 'add_to_wishlist' product.id %}" class="product-wishlist-btn ajax-add-to-wishlist" title="Add to Wishlist" data-ajax-url="{% url 'ajax_add_to_wishlist' product.id %}">
+                <i class="far fa-heart"></i>
+              </a>
+
+              <!-- Product Image -->
+              <div class="product-img-wrap">
+                <a href="{% url 'product_detail' product.slug %}" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none">
+                  {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                   {% else %}
-                    <span class="text-primary fw-bold fs-5">₦{{ product.price|intcomma }}</span>
+                    <img src="https://placehold.co/400x200/f1f5f9/64748b?text=No+Image" alt="No Image">
+                  {% endif %}
+                </a>
+              </div>
+              
+              <!-- Product Details -->
+              <div class="product-card-body">
+                <div class="product-meta-row">
+                  {% if product.brand %}
+                    <span>{{ product.brand.name }}</span>
+                  {% else %}
+                    <span>Sumia Verified</span>
+                  {% endif %}
+                  {% if product.category %}
+                    <span class="badge bg-light text-muted border rounded-pill">{{ product.category.name }}</span>
+                  {% endif %}
+                </div>
+
+                <h6 class="card-title fw-bold mb-2">
+                  <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark product-title-link">
+                    {{ product.name }}
+                  </a>
+                </h6>
+                
+                <div class="product-price-wrap">
+                  {% if product.discount_price %}
+                    <div class="d-flex align-items-baseline">
+                      <span class="product-price-current text-danger">₦{{ product.discount_price|intcomma }}</span>
+                      <span class="product-price-original">₦{{ product.price|intcomma }}</span>
+                    </div>
+                  {% else %}
+                    <div>
+                      <span class="product-price-current">₦{{ product.price|intcomma }}</span>
+                    </div>
                   {% endif %}
                 </div>
                 
-                <div class="mt-auto d-flex justify-content-between align-items-center gap-2">
+                <div class="product-actions-wrap d-flex gap-2">
                   {% if product.is_available and product.stock_quantity > 0 %}
                     <form action="{% url 'add_to_cart' product.id %}" method="post" class="ajax-add-to-cart flex-grow-1" data-ajax-url="{% url 'ajax_add_to_cart' product.id %}">
                       {% csrf_token %}
                       <input type="hidden" name="quantity" value="1">
-                      <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 py-2">
-                        <i class="fas fa-shopping-cart me-1"></i> Add to Cart
+                      <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 py-2 fw-bold d-flex align-items-center justify-content-center shadow-none">
+                        <i class="fas fa-cart-plus me-1"></i> Add
                       </button>
                     </form>
-                    <a href="{% url 'add_to_wishlist' product.id %}" class="ajax-add-to-wishlist btn btn-outline-danger btn-sm rounded-pill d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="Add to Wishlist" data-ajax-url="{% url 'ajax_add_to_wishlist' product.id %}">
-                      <i class="far fa-heart"></i>
-                    </a>
                   {% else %}
-                    <span class="badge bg-secondary py-2 rounded-pill w-100">Out of Stock</span>
+                    <button class="btn btn-secondary btn-sm rounded-pill flex-grow-1 py-2 fw-semibold" disabled>
+                      Out of Stock
+                    </button>
                   {% endif %}
+                  <button type="button" class="btn btn-outline-dark btn-sm rounded-circle d-flex align-items-center justify-content-center ajax-quick-view-btn" style="width: 38px; height: 38px;" title="Quick View" data-quickview-url="{% url 'ajax_quick_view' product.id %}">
+                    <i class="fas fa-eye"></i>
+                  </button>
                 </div>
               </div>
             </div>
@@ -126,9 +320,10 @@
         {% empty %}
           <div class="col-12">
             <div class="alert alert-light text-center py-5 my-4 rounded-4 border shadow-sm" role="alert">
+              <i class="fas fa-box-open fa-3x text-muted mb-3 opacity-50"></i>
               <h5 class="fw-bold text-dark">No Featured Products</h5>
               <p class="text-muted mb-3">It looks like there are no products to feature right now.</p>
-              <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4 btn-sm">Explore Shop</a>
+              <a href="{% url 'shop' %}" class="btn btn-primary rounded-pill px-4 btn-sm">Explore Shop</a>
             </div>
           </div>
         {% endfor %}
@@ -137,22 +332,26 @@
   </div>
 </div>
 
-<style>
-  .product-item-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  }
-  .product-item-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.08)!important;
-  }
-  .product-img {
-    height: 180px;
-    object-fit: cover;
-  }
-  .category-link:hover {
-    background-color: #f8f9fa;
-    color: #0d6efd !important;
-  }
-</style>
+<!-- Promo Banner Section -->
+<div class="container my-5 pb-4">
+  <div class="p-4 p-md-5 rounded-4 position-relative overflow-hidden shadow-sm" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
+    <div class="row align-items-center g-4 position-relative" style="z-index: 2;">
+      <div class="col-lg-8 text-center text-lg-start">
+        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold text-uppercase mb-3">
+          Vendor Marketplace
+        </span>
+        <h2 class="display-6 fw-bold text-white mb-2">Grow Your Business on Sumia</h2>
+        <p class="lead text-white-50 mb-4 mb-lg-0" style="max-width: 600px;">
+          Join hundreds of successful merchants. List your products, reach nationwide customers, and track your revenue with an intuitive dashboard.
+        </p>
+      </div>
+      <div class="col-lg-4 text-center text-lg-end">
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg rounded-pill px-4 fw-bold shadow-sm">
+          Open Vendor Account <i class="fas fa-arrow-right ms-2"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

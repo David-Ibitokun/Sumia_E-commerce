@@ -201,3 +201,40 @@ class ProductForm(forms.ModelForm):
             product.save()
             self.save_m2m()
         return product
+
+
+class ReviewForm(forms.ModelForm):
+    RATING_CHOICES = [(i, f"{i} Star{'s' if i > 1 else ''}") for i in range(5, 0, -1)]
+
+    rating = forms.ChoiceField(
+        choices=RATING_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select rounded-pill'})
+    )
+
+    class Meta:
+        from pages.models import ProductReview
+        model = ProductReview
+        fields = ['rating', 'title', 'comment']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control rounded-pill',
+                'placeholder': 'Summarize your review'
+            }),
+            'comment': forms.Textarea(attrs={
+                'class': 'form-control rounded-3',
+                'rows': 4,
+                'placeholder': 'What did you like or dislike about this product?'
+            }),
+        }
+
+
+class ProductImageForm(forms.ModelForm):
+    class Meta:
+        from pages.models import ProductImage
+        model = ProductImage
+        fields = ['image', 'alt_text', 'is_primary']
+        widgets = {
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'alt_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional descriptive text'}),
+            'is_primary': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

@@ -1,0 +1,157 @@
+/* Custom radio group for account type */
+.radio-group-custom {
+  display: flex;
+  gap: 24px;
+  margin: 8px 0 0 2px;
+}
+.radio-label-custom {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  position: relative;
+}
+.radio-label-custom input[type="radio"] {
+  accent-color: var(--primary-color);
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+  border-radius: 50%;
+  border: 2px solid var(--primary-color);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.radio-label-custom input[type="radio"]:focus {
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 0 2px #ffe9b3;
+}
+.radio-label-custom span {
+  margin-left: 2px;
+}
+/* Auth styles - modern amber primary theme */
+:root {
+  --primary-color: #F59E0B;
+  --primary-dark: #D97706;
+  --bg-gradient-start: #FFFDF5;
+  --bg-gradient-end: #FFFBEB;
+  --card-bg: #ffffff;
+  --muted: #64748B;
+  --border-radius: 16px;
+  --transition: all 0.25s ease;
+}
+
+/* container */
+.auth-container{
+  display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;
+  /* background: linear-gradient(135deg,var(--bg-gradient-start),var(--bg-gradient-end)); */
+}
+
+.auth-card{max-width:540px;width:100%;background:var(--card-bg);border-radius:var(--border-radius);box-shadow:0 18px 50px rgba(0,0,0,0.08);overflow:hidden;transition:var(--transition);}
+.auth-card:hover{transform:translateY(-6px);}
+.auth-card-body{padding:42px 36px}
+
+.auth-header{text-align:center;margin-bottom:26px}
+.auth-title{font-size:26px;color:#2b2b2b;margin:0;font-weight:700}
+.auth-subtitle{font-size:14px;color:var(--muted);margin-top:6px}
+
+/* form */
+.auth-form{margin-top:8px}
+.form-label-custom{display:block;font-weight:700;color:#333;font-size:13px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.6px}
+.form-control-custom{width:100%;padding:12px 14px;border:1px solid #eee;border-radius:8px;background:#fff;transition:var(--transition);font-size:14px}
+.form-control-custom:focus{outline:none;border-color:var(--primary-color);box-shadow:0 8px 30px rgba(255,196,63,0.12)}
+.input-group-custom{position:relative;display:flex;align-items:center}
+.input-group-text-custom{position:absolute;left:12px;color:#c6a54a}
+.input-group-custom .form-control-custom{padding-left:44px;padding-right:38px;}
+
+/* password toggle */
+.btn-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#8a6b2b;font-size:17px;padding:4px 6px;cursor:pointer;z-index:2;}
+.btn-password-toggle i{pointer-events:none}
+
+/* button */
+.btn-auth{width:100%;padding:12px;border-radius:10px;font-weight:700;border:none;cursor:pointer;transition:var(--transition)}
+.btn-primary-auth{background:linear-gradient(90deg,var(--primary-color),var(--primary-dark));color:#222;box-shadow:0 8px 24px rgba(255,196,63,0.16)}
+.btn-primary-auth:hover{transform:translateY(-2px);filter:brightness(.98)}
+
+/* alerts */
+.alert-custom{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:8px}
+.alert-custom.alert-success{background:rgba(40,167,69,0.08);color:#155724}
+.alert-custom.alert-danger{background:rgba(220,53,69,0.06);color:#721c24}
+.alert-custom.alert-warning{background:rgba(255,196,63,0.08);color:#6b4a00}
+.alert-custom i{font-size:18px;color:var(--primary-color)}
+
+/* error text */
+.error-feedback-custom{color:#c0392b;font-size:13px;margin-top:6px;display:block}
+
+/* checkbox */
+.checkbox-custom{display:flex;align-items:flex-start;gap:12px;margin-top:16px}
+.checkbox-custom input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary-color);}
+.checkbox-custom label{font-size:14px;color:#333}
+
+/* responsive grid fallback */
+@media (max-width:576px){
+  .auth-card-body{padding:28px 20px}
+  div[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+}
+
+/* small helpers */
+.auth-footer{margin-top:22px;text-align:center}
+.auth-footer-link{color:var(--primary-dark);font-weight:700;text-decoration:none}
+.auth-footer-link:hover{text-decoration:underline}
+
+
+/* Dark Mode Overrides for Auth Components */
+[data-theme="dark"] .auth-card {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .auth-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .auth-subtitle {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .form-label-custom {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .form-control-custom {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .form-control-custom:focus {
+  background-color: #0f172a !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.25) !important;
+}
+
+[data-theme="dark"] .input-group-text-custom {
+  color: #f59e0b !important;
+}
+
+[data-theme="dark"] .radio-label-custom {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .checkbox-custom label {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] ::selection {
+  background-color: #f59e0b !important;
+  color: #0b1120 !important;
+}
+
+[data-theme="dark"] .form-control-custom::selection {
+  background-color: #f59e0b !important;
+  color: #0b1120 !important;
+}

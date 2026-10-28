@@ -2,152 +2,190 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Checkout{% endblock %}
+{% block title %}Secure Checkout | Sumia{% endblock %}
 
 {% block content %}
 <section class="py-5 bg-light">
-    <div class="container">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb bg-white px-3 py-2 rounded-pill shadow-sm">
-                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-primary">Home</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'cart' %}" class="text-decoration-none text-primary">Cart</a></li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">Checkout</li>
-            </ol>
-        </nav>
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb breadcrumb-custom">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cart' %}">Cart</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+      </ol>
+    </nav>
 
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold text-primary mb-3">Secure Checkout</h1>
-            <p class="lead text-muted">Please review your order and provide shipping details.</p>
+    <!-- Checkout Steps Indicator -->
+    <div class="d-flex justify-content-center mb-5">
+      <div class="d-flex align-items-center gap-2 gap-sm-3 bg-white py-2 px-4 rounded-pill border shadow-sm">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;">✓</span>
+          <span class="small fw-semibold text-muted d-none d-sm-inline">Cart Review</span>
         </div>
-
-        <div class="row g-4">
-            <!-- Order Summary Column -->
-            <div class="col-lg-7">
-                <div class="card shadow-lg border-0 rounded-4">
-                    <div class="card-header bg-primary text-white fw-bold py-3 px-4 rounded-top-4">
-                        <h5 class="mb-0"><i class="fas fa-shopping-basket me-2"></i> Order Summary</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        {% if cart_items %}
-                            <ul class="list-group list-group-flush mb-4">
-                                {% for item in cart_items %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-0">
-                                        <div class="d-flex align-items-center">
-                                            <img src="{{ item.product.image.url|default:'https://placehold.co/60x60/cccccc/333333?text=No+Img' }}" 
-                                                 alt="{{ item.product.name }}" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                            <div>
-                                                <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
-                                                <small class="text-muted">{{ item.quantity }} x ₦{{ item.product.get_display_price|intcomma }}</small>
-                                            </div>
-                                        </div>
-                                        <span class="fw-bold">₦{{ item.get_total_price|intcomma }}</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-
-                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                                <h5 class="mb-0 text-dark">Total:</h5>
-                                <h4 class="mb-0 text-primary fw-bold">₦{{ total_price|intcomma }}</h4>
-                            </div>
-                        {% else %}
-                            <div class="alert alert-warning text-center rounded-3" role="alert">
-                                Your cart is empty. Please add items before checking out.
-                                <a href="{% url 'home' %}" class="alert-link ms-2">Go to Shop</a>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Shipping & Payment Column -->
-            <div class="col-lg-5">
-                <div class="card shadow-lg border-0 rounded-4">
-                    <div class="card-header bg-success text-white fw-bold py-3 px-4 rounded-top-4">
-                        <h5 class="mb-0"><i class="fas fa-truck me-2"></i> Shipping & Payment</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <form method="post" novalidate>
-                            {% csrf_token %}
-
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-
-                            {% if form.non_field_errors %}
-                                <div class="alert alert-danger rounded-3" role="alert">
-                                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-
-                            <h6 class="fw-bold mb-3 text-dark">Shipping Information</h6>
-
-                            <div class="mb-3">
-                                <label for="{{ form.address.id_for_label }}" class="form-label">{{ form.address.label }}</label>
-                                {{ form.address }}
-                                {% for error in form.address.errors %}
-                                    <div class="invalid-feedback d-block">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <div class="mb-3">
-                                <label for="{{ form.city.id_for_label }}" class="form-label">{{ form.city.label }}</label>
-                                {{ form.city }}
-                                {% for error in form.city.errors %}
-                                    <div class="invalid-feedback d-block">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <div class="row mb-4">
-                                <div class="col-md-6 mb-3 mb-md-0">
-                                    <label for="{{ form.zip_code.id_for_label }}" class="form-label">{{ form.zip_code.label }}</label>
-                                    {{ form.zip_code }}
-                                    {% for error in form.zip_code.errors %}
-                                        <div class="invalid-feedback d-block">{{ error }}</div>
-                                    {% endfor %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.country.id_for_label }}" class="form-label">{{ form.country.label }}</label>
-                                    {{ form.country }}
-                                    {% for error in form.country.errors %}
-                                        <div class="invalid-feedback d-block">{{ error }}</div>
-                                    {% endfor %}
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="{{ form.phone_number.id_for_label }}" class="form-label">{{ form.phone_number.label }}</label>
-                                    {{ form.phone_number }}
-                                    {% for error in form.phone_number.errors %}
-                                        <div class="invalid-feedback d-block">{{ error }}</div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <h6 class="fw-bold mb-3 text-dark" id="payment-method-label">{{ form.payment_method.label }}</h6>
-                            <div class="mb-4" role="radiogroup" aria-labelledby="payment-method-label">
-                                {% for radio in form.payment_method %}
-                                    <div class="form-check mb-2">
-                                        {{ radio.tag }}
-                                        <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-                                    </div>
-                                {% endfor %}
-                                {% for error in form.payment_method.errors %}
-                                    <div class="invalid-feedback d-block">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold" {% if not cart_items %}disabled{% endif %}>
-                                    <i class="fas fa-check-circle me-2"></i> Place Order
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+        <div style="width: 32px; height: 2px; background: #10B981;"></div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold" style="width: 26px; height: 26px;">2</span>
+          <span class="small fw-bold text-dark">Shipping & Payment</span>
         </div>
+        <div style="width: 32px; height: 2px; background: #E2E8F0;"></div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge rounded-circle bg-light text-muted border d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;">3</span>
+          <span class="small fw-semibold text-muted d-none d-sm-inline">Confirmation</span>
+        </div>
+      </div>
     </div>
+
+    <div class="row g-4">
+      <!-- Order Summary Column -->
+      <div class="col-lg-7">
+        <div class="card shadow-sm border rounded-4 overflow-hidden bg-white mb-4">
+          <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark">
+              <i class="fas fa-shopping-basket text-warning me-2"></i> Order Items
+            </h5>
+            <span class="badge bg-light text-dark border">{{ cart_items|length }} item{{ cart_items|length|pluralize }}</span>
+          </div>
+          <div class="card-body p-4">
+            {% if cart_items %}
+              <ul class="list-group list-group-flush mb-4">
+                {% for item in cart_items %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-0 border-bottom">
+                    <div class="d-flex align-items-center">
+                      <img src="{{ item.product.image.url|default:'https://placehold.co/60x60/f8fafc/64748b?text=No+Img' }}" 
+                           alt="{{ item.product.name }}" class="rounded-3 me-3 border" style="width: 60px; height: 60px; object-fit: contain; background: #F8FAFC;">
+                      <div>
+                        <h6 class="mb-1 fw-bold text-dark">{{ item.product.name }}</h6>
+                        <small class="text-muted">{{ item.quantity }} × ₦{{ item.product.get_display_price|intcomma }}</small>
+                      </div>
+                    </div>
+                    <span class="fw-bold text-dark fs-6">₦{{ item.get_total_price|intcomma }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+
+              <div class="bg-light p-4 rounded-4 mb-3 border">
+                <div class="d-flex justify-content-between mb-2 small text-muted">
+                  <span>Subtotal</span>
+                  <span class="fw-semibold text-dark">₦{{ total_price|intcomma }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 small text-muted">
+                  <span>Estimated Shipping</span>
+                  <span class="text-success fw-bold">FREE</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 small text-muted">
+                  <span>Buyer Protection</span>
+                  <span class="text-success fw-bold">FREE</span>
+                </div>
+                <hr class="my-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0 fw-bold text-dark">Total Due</h6>
+                  <h3 class="mb-0 text-warning fw-extrabold" style="font-weight: 800;">₦{{ total_price|intcomma }}</h3>
+                </div>
+              </div>
+            {% else %}
+              <div class="alert alert-warning text-center rounded-4" role="alert">
+                Your cart is empty. Please add items before checking out.
+                <a href="{% url 'shop' %}" class="alert-link ms-2">Go to Shop</a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="p-3 bg-white border rounded-4 d-flex align-items-center gap-3">
+          <i class="fas fa-shield-halved text-success fs-3"></i>
+          <div class="small">
+            <span class="fw-bold d-block text-dark">Guaranteed Safe & Secure Checkout</span>
+            <span class="text-muted">Your personal and payment details are encrypted using industry-standard SSL technology.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping & Payment Column -->
+      <div class="col-lg-5">
+        <div class="card shadow-sm border rounded-4 overflow-hidden bg-white">
+          <div class="card-header bg-white border-bottom py-3 px-4">
+            <h5 class="mb-0 fw-bold text-dark">
+              <i class="fas fa-truck text-warning me-2"></i> Shipping & Payment
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <form method="post" novalidate>
+              {% csrf_token %}
+
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger rounded-3" role="alert">
+                  {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+              {% endif %}
+
+              <h6 class="fw-bold mb-3 text-dark small text-uppercase" style="letter-spacing: 0.5px;">Shipping Address</h6>
+
+              <div class="mb-3">
+                <label for="{{ form.address.id_for_label }}" class="form-label small fw-semibold">{{ form.address.label }}</label>
+                {{ form.address }}
+                {% for error in form.address.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                <label for="{{ form.city.id_for_label }}" class="form-label small fw-semibold">{{ form.city.label }}</label>
+                {{ form.city }}
+                {% for error in form.city.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+              <div class="row mb-3">
+                <div class="col-6">
+                  <label for="{{ form.zip_code.id_for_label }}" class="form-label small fw-semibold">{{ form.zip_code.label }}</label>
+                  {{ form.zip_code }}
+                  {% for error in form.zip_code.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                  {% endfor %}
+                </div>
+                <div class="col-6">
+                  <label for="{{ form.country.id_for_label }}" class="form-label small fw-semibold">{{ form.country.label }}</label>
+                  {{ form.country }}
+                  {% for error in form.country.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="mb-4">
+                <label for="{{ form.phone_number.id_for_label }}" class="form-label small fw-semibold">{{ form.phone_number.label }}</label>
+                {{ form.phone_number }}
+                {% for error in form.phone_number.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <h6 class="fw-bold mb-3 text-dark small text-uppercase" id="payment-method-label" style="letter-spacing: 0.5px;">
+                Payment Method
+              </h6>
+              <div class="mb-4 bg-light p-3 rounded-4 border" role="radiogroup" aria-labelledby="payment-method-label">
+                {% for radio in form.payment_method %}
+                  <div class="form-check mb-2">
+                    {{ radio.tag }}
+                    <label class="form-check-label fw-semibold text-dark" for="{{ radio.id_for_label }}">
+                      {{ radio.choice_label }}
+                    </label>
+                  </div>
+                {% endfor %}
+                {% for error in form.payment_method.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm py-3" {% if not cart_items %}disabled{% endif %}>
+                  <i class="fas fa-lock me-2"></i> Confirm & Place Order
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 {% endblock %}

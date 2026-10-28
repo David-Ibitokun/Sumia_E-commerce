@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}My Profile{% endblock %}
+{% block title %}Edit Profile | Sumia{% endblock %}
 
 {% block content %}
 <section class="py-5 bg-light">
@@ -11,11 +11,11 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
       <div>
         <p class="text-uppercase text-muted small fw-bold mb-1">Account Management</p>
-        <h2 class="fw-bold text-dark mb-0">Edit Profile</h2>
+        <h2 class="fw-bold text-dark mb-0">Profile & Security Settings</h2>
       </div>
       <div>
         <a href="{% if request.user.account_type == 'user' %}{% url 'user_dashboard' %}{% elif request.user.account_type == 'vendor' %}{% url 'vendor_dashboard' %}{% endif %}" 
-           class="btn btn-outline-secondary rounded-pill px-4 shadow-sm">
+           class="btn btn-outline-dark rounded-pill px-4 shadow-sm fw-semibold">
           <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
         </a>
       </div>
@@ -23,34 +23,35 @@
 
     <!-- Messages -->
     {% if messages %}
-    <div class="row justify-content-center mb-4">
-      <div class="col-12">
-        {% for message in messages %}
-        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show rounded-3 shadow-sm mb-2" role="alert">
-          <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %} me-2"></i>
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <div class="row justify-content-center mb-4">
+        <div class="col-12">
+          {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show rounded-4 shadow-sm mb-2" role="alert">
+              <i class="fas fa-{% if message.tags == 'error' %}triangle-exclamation text-danger{% else %}check-circle text-success{% endif %} me-2"></i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
         </div>
-        {% endfor %}
       </div>
-    </div>
     {% endif %}
 
     <div class="row g-4">
       
       <!-- Profile Sidebar -->
       <div class="col-lg-4">
-        <div class="card shadow-sm border-0 rounded-4">
+        <div class="card shadow-sm border rounded-4 bg-white">
           <div class="card-body text-center p-4">
-            <!-- Avatar -->
+            <!-- Avatar Initial Badge -->
             <div class="position-relative d-inline-block mb-3">
-              <img src="{% static 'images/default-avatar.png' %}" alt="User Avatar"
-                   class="img-fluid rounded-circle border" width="120" height="120" style="object-fit: cover;">
+              <div class="rounded-circle bg-warning text-dark fw-bold d-flex align-items-center justify-content-center shadow-sm border mx-auto" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                {{ user.username|make_list|first|upper }}
+              </div>
             </div>
             
-            <h5 class="fw-bold text-dark mb-1">{{ user.username }}</h5>
-            <span class="badge bg-light text-dark border rounded-pill px-3 py-2 mb-3">
-              <i class="fas fa-user-tag me-1 text-primary"></i>{{ user.account_type|title }}
+            <h5 class="fw-bold text-dark mb-1">{{ user.get_full_name|default:user.username }}</h5>
+            <span class="badge bg-warning text-dark rounded-pill px-3 py-1 mb-3 fw-bold text-capitalize">
+              <i class="fas fa-user-tag me-1"></i>{{ user.account_type }} Account
             </span>
             
             <hr class="my-4 text-muted opacity-25">
@@ -58,7 +59,7 @@
             <!-- Account Summary -->
             <div class="text-start small">
               <div class="d-flex align-items-center mb-3">
-                <i class="fas fa-envelope text-muted fs-5 me-3" style="width: 20px;"></i>
+                <i class="fas fa-envelope text-warning fs-5 me-3" style="width: 20px;"></i>
                 <div>
                   <strong class="d-block text-dark">Email</strong>
                   <span class="text-muted">{{ user.email|default:"Not provided" }}</span>
@@ -66,15 +67,15 @@
               </div>
               
               <div class="d-flex align-items-center mb-3">
-                <i class="fas fa-id-card text-muted fs-5 me-3" style="width: 20px;"></i>
+                <i class="fas fa-id-card text-primary fs-5 me-3" style="width: 20px;"></i>
                 <div>
-                  <strong class="d-block text-dark">Full Name</strong>
-                  <span class="text-muted">{{ user.get_full_name|default:"Not provided" }}</span>
+                  <strong class="d-block text-dark">Username</strong>
+                  <span class="text-muted">@{{ user.username }}</span>
                 </div>
               </div>
               
               <div class="d-flex align-items-center">
-                <i class="fas fa-calendar-alt text-muted fs-5 me-3" style="width: 20px;"></i>
+                <i class="fas fa-calendar-alt text-success fs-5 me-3" style="width: 20px;"></i>
                 <div>
                   <strong class="d-block text-dark">Member Since</strong>
                   <span class="text-muted">{{ user.date_joined|date:"F d, Y" }}</span>
@@ -87,9 +88,9 @@
 
       <!-- Form Section -->
       <div class="col-lg-8">
-        <div class="card shadow-sm border-0 rounded-4 mb-4">
-          <div class="card-body p-4">
-            <h5 class="fw-bold text-dark mb-4">Personal Information</h5>
+        <div class="card shadow-sm border rounded-4 mb-4 bg-white">
+          <div class="card-body p-4 p-md-5">
+            <h5 class="fw-bold text-dark mb-4">Edit Personal Information</h5>
 
             <form method="post" novalidate>
               {% csrf_token %}
@@ -101,7 +102,7 @@
                        id="{{ form.username.id_for_label }}" 
                        value="{{ form.username.value|default:user.username }}" 
                        readonly style="cursor: not-allowed;">
-                <div class="form-text text-muted">Username cannot be changed.</div>
+                <div class="form-text text-muted">Usernames are unique identifiers and cannot be altered.</div>
               </div>
 
               <!-- First Name -->
@@ -142,8 +143,8 @@
               <!-- Action Buttons -->
               <div class="d-flex justify-content-end gap-3">
                 <a href="{% if request.user.account_type == 'user' %}{% url 'user_dashboard' %}{% elif request.user.account_type == 'vendor' %}{% url 'vendor_dashboard' %}{% endif %}" 
-                   class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
-                <button type="submit" class="btn btn-primary rounded-pill px-4">
+                   class="btn btn-outline-dark rounded-pill px-4">Cancel</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
                   <i class="fas fa-save me-2"></i>Save Changes
                 </button>
               </div>
@@ -152,32 +153,18 @@
         </div>
 
         <!-- Security Notice -->
-        <div class="card shadow-sm border-0 rounded-4 bg-white">
-          <div class="card-body p-4">
-            <h6 class="fw-bold text-dark mb-3">
-              <i class="fas fa-shield-alt text-muted me-2"></i>Account Security
-            </h6>
-            <ul class="list-unstyled mb-0 small text-muted">
-              <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Keep your contact details up-to-date for order notifications.</li>
-              <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Never share your login password or credentials with third parties.</li>
-            </ul>
-          </div>
+        <div class="card shadow-sm border rounded-4 bg-white p-4">
+          <h6 class="fw-bold text-dark mb-3">
+            <i class="fas fa-shield-alt text-warning me-2"></i>Account Protection
+          </h6>
+          <ul class="list-unstyled mb-0 small text-muted">
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Your email address is used for instant dispatch notices and order receipts.</li>
+            <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Sumia will never ask you for your login password via phone or email.</li>
+          </ul>
         </div>
       </div>
 
     </div>
   </div>
 </section>
-
-<style>
-  .form-control, .form-select {
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid #ced4da;
-  }
-  .form-control:focus, .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-  }
-</style>
 {% endblock %}

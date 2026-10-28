@@ -13,6 +13,7 @@ from pages.models import CartItem, Product
 
 from shop.services import cart as cart_service
 from shop.services import catalog, wishlist as wishlist_service
+from pages.ratelimit import ratelimit
 from shop.services.exceptions import ShopServiceError
 
 from .utils import json_error
@@ -137,6 +138,7 @@ def ajax_remove_from_wishlist(request, item_id):
 
 
 @require_GET
+@ratelimit(capacity=30, refill_rate=5.0, key_prefix='rl_search', is_json=True)
 def ajax_search(request):
     """Type-ahead product suggestions for the navbar search box."""
     query = request.GET.get('q', '').strip()
@@ -179,4 +181,31 @@ def _serialize(product):
         'price': str(product.price),
         'discount_price': str(product.discount_price) if product.discount_price else None,
         'image_url': product.image.url if product.image else None,
+        'category_name': product.category.name if product.category else '',
+        'brand_name': product.brand.name if product.brand else '',
+        'discount_percent': product.get_discount_percent() if product.discount_price else 0,
     }
+
+
+@require_GET
+def ajax_quick_view(request, product_id):
+    """Retrieve full product details for interactive quick view modal."""
+    product = get_object_or_404(Product, id=product_id)
+    return JsonResponse({
+        'status': 'success',
+        'id': product.id,
+        'name': product.name,
+        'slug': product.slug,
+        'detail_url': reverse('product_detail', kwargs={'slug': product.slug}),
+        'category': product.category.name if product.category else 'General',
+        'brand': product.brand.name if product.brand else None,
+        'description': product.description,
+        'price': f"{product.price:,.2f}",
+        'discount_price': f"{product.discount_price:,.2f}" if product.discount_price else None,
+        'discount_percent': product.get_discount_percent() if product.discount_price else 0,
+        'is_available': product.is_available and product.stock_quantity > 0,
+        'stock_quantity': product.stock_quantity,
+        'image_url': product.image.url if product.image else None,
+        'add_to_cart_url': reverse('ajax_add_to_cart', kwargs={'product_id': product.id}),
+        'add_to_wishlist_url': reverse('ajax_add_to_wishlist', kwargs={'product_id': product.id}),
+    })

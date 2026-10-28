@@ -2,98 +2,131 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}Vendor Order #{{ order.id }}{% endblock %}
+{% block title %}Order #{{ order.order_number|default:order.id }} Details | Sumia Merchant{% endblock %}
 
 {% block content %}
 <section class="py-5 bg-light">
-    <div class="container">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb bg-white px-3 py-2 rounded-pill shadow-sm">
-                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-primary">Home</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'vendor_dashboard' %}" class="text-decoration-none text-primary">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'vendor_orders' %}" class="text-decoration-none text-primary">My Customer Orders</a></li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">Order #{{ order.id }}</li>
-            </ol>
-        </nav>
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb breadcrumb-custom">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'vendor_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'vendor_orders' %}">Customer Orders</a></li>
+        <li class="breadcrumb-item active" aria-current="page">#{{ order.order_number|default:order.id }}</li>
+      </ol>
+    </nav>
 
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold text-primary mb-3">Order #{{ order.id }} Details</h1>
-            <p class="lead text-muted">Details for order placed by {{ order.user.get_full_name|default:order.user.username }} on {{ order.created_at|date:"M d, Y H:i" }}.</p>
-        </div>
-
-        {% include 'vendor/partials/nav.html' %}
-
-        <div class="row g-4">
-            <!-- Vendor's Items in Order -->
-            <div class="col-lg-8">
-                <div class="card shadow-lg border-0 rounded-4">
-                    <div class="card-header bg-primary text-white fw-bold py-3 px-4 rounded-top-4">
-                        <h5 class="mb-0"><i class="fas fa-boxes me-2"></i> My Products in This Order</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        {% if vendor_order_items %}
-                            <ul class="list-group list-group-flush mb-4">
-                                {% for item in vendor_order_items %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-0">
-                                        <div class="d-flex align-items-center">
-                                            <img src="{{ item.product.image.url|default:'https://placehold.co/60x60/cccccc/333333?text=No+Img' }}" 
-                                                 alt="{{ item.product.name }}" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                            <div>
-                                                <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
-                                                <small class="text-muted">{{ item.quantity }} x ₦{{ item.price_at_purchase|intcomma }}</small>
-                                            </div>
-                                        </div>
-                                        <span class="fw-bold">₦{{ item.get_total_price|intcomma }}</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-
-                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                                <h5 class="mb-0 text-dark">Total for My Products:</h5>
-                                <h4 class="mb-0 text-primary fw-bold">₦{{ vendor_total_price|intcomma }}</h4>
-                            </div>
-                        {% else %}
-                            <div class="alert alert-info text-center rounded-3" role="alert">
-                                No products from your store found in this order.
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Customer & Shipping Info -->
-            <div class="col-lg-4">
-                <div class="card shadow-lg border-0 rounded-4 mb-4">
-                    <div class="card-header bg-success text-white fw-bold py-3 px-4 rounded-top-4">
-                        <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i> Customer Information</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <p class="mb-1"><strong>Name:</strong> {{ order.user.get_full_name|default:order.user.username }}</p>
-                        <p class="mb-1"><strong>Email:</strong> {{ order.user.email }}</p>
-                        </div>
-                </div>
-
-                <div class="card shadow-lg border-0 rounded-4">
-                    <div class="card-header bg-info text-white fw-bold py-3 px-4 rounded-top-4">
-                        <h5 class="mb-0"><i class="fas fa-shipping-fast me-2"></i> Shipping Address</h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <p class="mb-1">{{ order.address }}</p>
-                        <p class="mb-1">{{ order.city }}{% if order.zip_code %}, {{ order.zip_code }}{% endif %}</p>
-                        <p class="mb-0">{{ order.country }}</p>
-                        <p class="mb-3"><strong>Phone Number:</strong> {{ order.phone_number }}</p> {# <--- NEW: Display Phone Number #}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="text-center mt-5">
-            <a href="{% url 'vendor_orders' %}" class="btn btn-secondary btn-lg rounded-pill px-4">
-                <i class="fas fa-arrow-left me-2"></i> Back to All Customer Orders
-            </a>
-            {# Optional: Add actions like "Update Order Status" here for vendors #}
-        </div>
+    <!-- Header Banner -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+      <div>
+        <h2 class="fw-bold text-dark mb-1">Customer Order #{{ order.order_number|default:order.id }}</h2>
+        <p class="text-muted small mb-0">
+          Placed by <strong class="text-dark">{{ order.user.get_full_name|default:order.user.username }}</strong> on {{ order.created_at|date:"M d, Y • H:i" }}
+        </p>
+      </div>
+      <div>
+        <a href="{% url 'vendor_orders' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+          <i class="fas fa-arrow-left me-1"></i> Back to Orders
+        </a>
+      </div>
     </div>
+
+    {% include 'vendor/partials/nav.html' %}
+
+    <div class="row g-4">
+      <!-- Vendor's Items in Order -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm border rounded-4 bg-white overflow-hidden mb-4">
+          <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold text-dark mb-0">
+              <i class="fas fa-boxes-stacked text-warning me-2"></i> Your Products in This Order
+            </h5>
+            <span class="badge bg-light text-dark border">{{ vendor_order_items|length }} item{{ vendor_order_items|length|pluralize }}</span>
+          </div>
+          <div class="card-body p-4">
+            {% if vendor_order_items %}
+              <ul class="list-group list-group-flush mb-4">
+                {% for item in vendor_order_items %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-0 border-bottom">
+                    <div class="d-flex align-items-center">
+                      <img src="{{ item.product.image.url|default:'https://placehold.co/60x60/f8fafc/64748b?text=No+Img' }}" 
+                           alt="{{ item.product.name }}" class="rounded-3 me-3 border" style="width: 60px; height: 60px; object-fit: contain; background: #F8FAFC;">
+                      <div>
+                        <h6 class="mb-1 fw-bold text-dark">{{ item.product.name }}</h6>
+                        <small class="text-muted">{{ item.quantity }} × ₦{{ item.price_at_purchase|intcomma }}</small>
+                      </div>
+                    </div>
+                    <span class="fw-bold text-dark fs-6">₦{{ item.get_total_price|intcomma }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+
+              <div class="bg-light p-3 rounded-4 border d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-dark">Total Payout for Your Store:</span>
+                <h4 class="mb-0 text-warning fw-extrabold" style="font-weight: 800;">₦{{ vendor_total_price|intcomma }}</h4>
+              </div>
+            {% else %}
+              <div class="alert alert-light text-center rounded-4 border py-4" role="alert">
+                No items from your inventory were found in this order.
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer & Shipping Info -->
+      <div class="col-lg-4">
+        <!-- Customer Info Card -->
+        <div class="card shadow-sm border rounded-4 bg-white mb-4">
+          <div class="card-header bg-white border-bottom py-3 px-4">
+            <h6 class="fw-bold text-dark mb-0">
+              <i class="fas fa-user-circle text-warning me-2"></i> Customer Details
+            </h6>
+          </div>
+          <div class="card-body p-4 small">
+            <p class="mb-2"><strong class="text-dark">Customer Name:</strong><br>{{ order.user.get_full_name|default:order.user.username }}</p>
+            <p class="mb-2"><strong class="text-dark">Email:</strong><br>{{ order.user.email|default:"Not provided" }}</p>
+            <p class="mb-0"><strong class="text-dark">Contact Phone:</strong><br>{{ order.phone_number }}</p>
+          </div>
+        </div>
+
+        <!-- Shipping Address Card -->
+        <div class="card shadow-sm border rounded-4 bg-white mb-4">
+          <div class="card-header bg-white border-bottom py-3 px-4">
+            <h6 class="fw-bold text-dark mb-0">
+              <i class="fas fa-truck-fast text-success me-2"></i> Delivery Destination
+            </h6>
+          </div>
+          <div class="card-body p-4 small">
+            <p class="mb-1 fw-bold text-dark">{{ order.address }}</p>
+            <p class="mb-1 text-muted">{{ order.city }}{% if order.zip_code %}, {{ order.zip_code }}{% endif %}</p>
+            <p class="mb-0 text-muted">{{ order.country }}</p>
+          </div>
+        </div>
+
+        <!-- Order Status Summary -->
+        <div class="card shadow-sm border rounded-4 bg-white">
+          <div class="card-header bg-white py-3 px-4 border-bottom">
+            <h6 class="fw-bold text-dark mb-0">Payment & Status</h6>
+          </div>
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="small text-muted">Payment:</span>
+              {% if order.is_paid %}
+                <span class="badge bg-success rounded-pill px-3 py-1">Paid</span>
+              {% else %}
+                <span class="badge bg-warning text-dark rounded-pill px-3 py-1">Unpaid</span>
+              {% endif %}
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small text-muted">Status:</span>
+              <span class="badge bg-secondary rounded-pill px-3 py-1">{{ order.get_status_display }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 {% endblock %}

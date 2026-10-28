@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Category, Product, Brand, Cart, CartItem, Wishlist, Order, OrderItem # Make sure all models are imported
+from .models import Category, Product, Brand, Cart, CartItem, Wishlist, Order, OrderItem, ProductReview, ProductImage
 
 # Inline: Show Products under a Brand
 class ProductInlineByBrand(admin.TabularInline):
@@ -123,3 +123,28 @@ class OrderItemAdmin(admin.ModelAdmin):
     def get_total(self, obj):
         return obj.get_total_price()
     get_total.short_description = 'Total'
+
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ('product', 'user', 'rating', 'title', 'is_verified_purchase', 'is_approved', 'created_at')
+    list_filter = ('rating', 'is_approved', 'is_verified_purchase', 'created_at')
+    search_fields = ('product__name', 'user__username', 'title', 'comment')
+    raw_id_fields = ('product', 'user')
+    actions = ['approve_reviews', 'reject_reviews']
+
+    def approve_reviews(self, request, queryset):
+        queryset.update(is_approved=True)
+    approve_reviews.short_description = "Approve selected reviews"
+
+    def reject_reviews(self, request, queryset):
+        queryset.update(is_approved=False)
+    reject_reviews.short_description = "Reject selected reviews"
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ('product', 'alt_text', 'is_primary', 'sort_order', 'created_at')
+    list_filter = ('is_primary', 'created_at')
+    search_fields = ('product__name', 'alt_text')
+    raw_id_fields = ('product',)

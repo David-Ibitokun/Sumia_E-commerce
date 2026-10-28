@@ -3,85 +3,105 @@
 {% load humanize %}
 {% load custom_filters %}
 
-{% block title %}Your Recent Orders - Sumia{% endblock %}
+{% block title %}My Orders | Sumia{% endblock %}
 
 {% block content %}
-<section class="recent-orders-section py-5 bg-light">
-    <div class="container">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb bg-white px-3 py-2 rounded-pill shadow-sm">
-                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-primary">Home</a></li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">My Orders</li>
-            </ol>
-        </nav>
+<section class="py-5 bg-light">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb breadcrumb-custom">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'user_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">My Orders</li>
+      </ol>
+    </nav>
 
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold text-primary mb-3">Your Recent Orders</h1>
-            <p class="lead text-muted">Here's a summary of your latest purchases.</p>
-        </div>
-
-        <div class="card shadow-lg border-0 rounded-4 p-4">
-            <div class="card-body">
-                {% if page_obj %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle table-striped">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col" class="text-nowrap">Order ID</th>
-                                    <th scope="col" class="text-nowrap">Date</th>
-                                    <th scope="col" class="text-nowrap">Total</th>
-                                    <th scope="col" class="text-nowrap">Status</th>
-                                    <th scope="col" class="text-nowrap">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order in page_obj %}
-                                <tr>
-                                    <td class="fw-bold text-primary">#{{ order.id }}</td>
-                                    <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
-                                    <td>₦{{ order.total_price|intcomma }}</td>
-                                    <td>
-                                        {% if order.status == 'pending' %}
-                                            <span class="badge bg-warning text-dark">{{ order.status|capfirst }}</span>
-                                        {% elif order.status == 'shipped' %}
-                                            <span class="badge bg-info">{{ order.status|capfirst }}</span>
-                                        {% elif order.status == 'delivered' %}
-                                            <span class="badge bg-success">{{ order.status|capfirst }}</span>
-                                        {% elif order.status == 'cancelled' %}
-                                            <span class="badge bg-danger">{{ order.status|capfirst }}</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">{{ order.status|capfirst }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'order_detail' order.order_number %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                            View Details <i class="fas fa-arrow-right ms-1"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% include 'partials/paginator.html' %}
-                {% else %}
-                    <div class="alert alert-info text-center py-4 my-4 rounded-3 shadow-sm" role="alert">
-                        <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> No Recent Orders Found!</h4>
-                        <p>It looks like you haven't placed any orders yet.</p>
-                        <hr>
-                        <p class="mb-0">Start exploring our amazing products now!</p>
-                        <a href="{% url 'home' %}" class="btn btn-primary mt-3 rounded-pill">Start Shopping</a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="text-center mt-5">
-            <a href="{% url 'user_dashboard' %}" class="btn btn-secondary btn-lg rounded-pill px-4">
-                Back to Dashboard
-            </a>
-        </div>
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+      <div>
+        <h2 class="fw-bold text-dark mb-1">Your Recent Orders</h2>
+        <p class="text-muted small mb-0">Track delivery status and view item receipts for all your purchases.</p>
+      </div>
+      <div>
+        <a href="{% url 'shop' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+          <i class="fas fa-shopping-bag me-1"></i> Continue Shopping
+        </a>
+      </div>
     </div>
+
+    <div class="card shadow-sm border rounded-4 overflow-hidden bg-white">
+      <div class="card-body p-0">
+        {% if page_obj %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" class="ps-4">Order ID</th>
+                  <th scope="col">Date Placed</th>
+                  <th scope="col">Total Paid</th>
+                  <th scope="col">Status</th>
+                  <th scope="col" class="pe-4 text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for order in page_obj %}
+                  <tr>
+                    <td class="ps-4 py-3">
+                      <span class="fw-bold text-dark">#{{ order.order_number|default:order.id }}</span>
+                    </td>
+                    <td class="text-muted small">
+                      {{ order.created_at|date:"M d, Y • H:i" }}
+                    </td>
+                    <td>
+                      <span class="fw-bold text-dark">₦{{ order.total_price|intcomma }}</span>
+                    </td>
+                    <td>
+                      {% if order.status == 'pending' %}
+                        <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-start me-1"></i>Pending</span>
+                      {% elif order.status == 'processing' %}
+                        <span class="badge bg-info text-white"><i class="fas fa-cog fa-spin me-1"></i>Processing</span>
+                      {% elif order.status == 'shipped' %}
+                        <span class="badge bg-primary"><i class="fas fa-truck me-1"></i>Shipped</span>
+                      {% elif order.status == 'delivered' %}
+                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Delivered</span>
+                      {% elif order.status == 'cancelled' %}
+                        <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Cancelled</span>
+                      {% else %}
+                        <span class="badge bg-secondary">{{ order.status|capfirst }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="pe-4 text-end">
+                      <a href="{% url 'order_detail' order.order_number %}" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold">
+                        View Receipt <i class="fas fa-arrow-right ms-1 text-warning"></i>
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="p-3 border-top">
+            {% include 'partials/paginator.html' %}
+          </div>
+        {% else %}
+          <div class="p-5 text-center">
+            <div class="mb-3">
+              <span class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                <i class="fas fa-receipt fa-2x text-muted opacity-50"></i>
+              </span>
+            </div>
+            <h4 class="fw-bold text-dark mb-2">No Orders Placed Yet</h4>
+            <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+              You haven't placed any orders with Sumia yet. Explore our marketplace and start shopping today!
+            </p>
+            <a href="{% url 'shop' %}" class="btn btn-primary rounded-pill px-4 fw-bold">
+              Start Shopping Now
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </section>
 {% endblock %}

@@ -5,9 +5,11 @@ from django.contrib.auth.decorators import login_required
 
 from .forms import ProfileForm, UsersRegistrationForm, CustomAuthenticationForm
 from pages.decorators import customer_required, vendor_required
+from pages.ratelimit import ratelimit
 from shop.services import dashboard as dashboard_service
 
 
+@ratelimit(capacity=10, refill_rate=0.2, key_prefix='rl_register')
 def register_user(request):
     form = UsersRegistrationForm(request.POST or None)
 
@@ -27,6 +29,7 @@ def dashboard_url_for(user):
     return 'vendor_dashboard' if user.account_type == 'vendor' else 'user_dashboard'
 
 
+@ratelimit(capacity=5, refill_rate=0.1, key_prefix='rl_login')
 def login_user(request):
     if request.user.is_authenticated:
         return redirect(dashboard_url_for(request.user))

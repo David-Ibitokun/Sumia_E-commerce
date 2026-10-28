@@ -2,79 +2,130 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}My Wishlist{% endblock %}
+{% block title %}My Saved Wishlist | Sumia{% endblock %}
 
 {% block content %}
 <section class="py-5 bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold text-primary display-5 mb-3">My Wishlist</h2>
-            <p class="lead text-muted">Your saved products, ready when you are.</p>
-        </div>
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb breadcrumb-custom">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'shop' %}">Shop</a></li>
+        <li class="breadcrumb-item active" aria-current="page">My Wishlist</li>
+      </ol>
+    </nav>
 
-        {% if wishlist_items %}
-        <div class="wishlist-items-wrap">
-            <div class="row g-4">
-                {% for item in wishlist_items %}
-                <div class="col-sm-6 col-md-4 col-lg-3 wishlist-item">
-                    <div class="card border-0 shadow-sm rounded-4 h-100">
-                        <a href="{% url 'product_detail' item.product.slug %}">
-                            {% if item.product.image %}
-                                <img src="{{ item.product.image.url }}" class="card-img-top rounded-top-4" alt="{{ item.product.name }}" style="height: 220px; object-fit: cover;">
-                            {% else %}
-                                <img src="https://placehold.co/300x220/cccccc/333333?text=No+Image" class="card-img-top rounded-top-4" alt="No Image">
-                            {% endif %}
-                        </a>
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="fw-bold text-dark text-truncate">{{ item.product.name }}</h6>
-                            <small class="text-muted mb-2">Added on: {{ item.added_at|date:"M d, Y" }}</small>
-
-                            <div class="mb-3">
-                                {% if item.product.discount_price %}
-                                    <span class="text-muted text-decoration-line-through">₦{{ item.product.price|intcomma }}</span>
-                                    <span class="fw-bold text-danger ms-2">₦{{ item.product.discount_price|intcomma }}</span>
-                                {% else %}
-                                    <span class="fw-bold text-primary">₦{{ item.product.price|intcomma }}</span>
-                                {% endif %}
-                            </div>
-
-                            <span class="badge {% if item.product.is_available and item.product.stock_quantity > 0 %}bg-success{% else %}bg-danger{% endif %} rounded-pill px-3 py-2 mb-3">
-                                {% if item.product.is_available and item.product.stock_quantity > 0 %}
-                                    In Stock
-                                {% else %}
-                                    Out of Stock
-                                {% endif %}
-                            </span>
-
-                            <div class="mt-auto d-flex gap-2">
-                                <form action="{% url 'add_to_cart' item.product.id %}" method="post" class="ajax-add-to-cart flex-fill" data-ajax-url="{% url 'ajax_add_to_cart' item.product.id %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="btn btn-primary w-100 rounded-pill btn-sm" {% if not item.product.is_available or item.product.stock_quantity == 0 %}disabled{% endif %}>
-                                        <i class="fas fa-cart-plus me-1"></i> Add to Cart
-                                    </button>
-                                </form>
-                                <form action="{% url 'remove_from_wishlist' item.id %}" method="post" class="ajax-remove-from-wishlist" data-ajax-url="{% url 'ajax_remove_from_wishlist' item.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger rounded-pill btn-sm" title="Remove from Wishlist">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% else %}
-        <div class="wishlist-empty-message text-center py-5">
-            <img src="https://illustrations.popsy.co/gray/empty-cart.svg" alt="Empty Wishlist" class="mb-4" style="max-width: 300px;">
-            <h4 class="fw-bold text-dark mb-2">Your Wishlist is Empty</h4>
-            <p class="text-muted">Start adding products you love and save them for later.</p>
-            <a href="{% url 'home' %}" class="btn btn-primary rounded-pill mt-3 px-4">Start Shopping</a>
-        </div>
-        {% endif %}
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+      <div>
+        <h2 class="fw-bold text-dark mb-1">My Saved Wishlist</h2>
+        <p class="text-muted small mb-0">Products you've saved for later. Move them to your cart anytime.</p>
+      </div>
+      <div>
+        <a href="{% url 'shop' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+          <i class="fas fa-plus me-1"></i> Add More Items
+        </a>
+      </div>
     </div>
+
+    {% if wishlist_items %}
+      <div class="wishlist-items-wrap">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+          {% for item in wishlist_items %}
+            <div class="col wishlist-item">
+              <div class="card h-100 shadow-sm border rounded-4 product-item-card overflow-hidden bg-white position-relative">
+                
+                <!-- Remove Wishlist Button -->
+                <form action="{% url 'remove_from_wishlist' item.id %}" method="post" class="ajax-remove-from-wishlist position-absolute top-0 end-0 m-3" style="z-index: 5;" data-ajax-url="{% url 'ajax_remove_from_wishlist' item.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-light rounded-circle shadow-sm border p-0 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; color: #EF4444;" title="Remove from Wishlist">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </form>
+
+                <!-- Product Image -->
+                <div class="product-img-wrap">
+                  <a href="{% url 'product_detail' item.product.slug %}" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none">
+                    {% if item.product.image %}
+                      <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                    {% else %}
+                      <img src="https://placehold.co/300x220/f1f5f9/64748b?text=No+Image" alt="No Image">
+                    {% endif %}
+                  </a>
+                </div>
+
+                <!-- Product Details -->
+                <div class="product-card-body">
+                  <div class="product-meta-row">
+                    {% if item.product.brand %}
+                      <span>{{ item.product.brand.name }}</span>
+                    {% else %}
+                      <span>Sumia Verified</span>
+                    {% endif %}
+                    <span class="badge {% if item.product.is_available and item.product.stock_quantity > 0 %}bg-success{% else %}bg-danger{% endif %} rounded-pill px-2 py-1" style="font-size: 0.7rem;">
+                      {% if item.product.is_available and item.product.stock_quantity > 0 %}In Stock{% else %}Out of Stock{% endif %}
+                    </span>
+                  </div>
+
+                  <h6 class="card-title fw-bold mb-2">
+                    <a href="{% url 'product_detail' item.product.slug %}" class="text-decoration-none text-dark product-title-link">
+                      {{ item.product.name }}
+                    </a>
+                  </h6>
+
+                  <div class="product-price-wrap">
+                    {% if item.product.discount_price %}
+                      <div class="d-flex align-items-baseline">
+                        <span class="product-price-current text-danger">₦{{ item.product.discount_price|intcomma }}</span>
+                        <span class="product-price-original">₦{{ item.product.price|intcomma }}</span>
+                      </div>
+                    {% else %}
+                      <div>
+                        <span class="product-price-current">₦{{ item.product.price|intcomma }}</span>
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  <div class="product-actions-wrap">
+                    {% if item.product.is_available and item.product.stock_quantity > 0 %}
+                      <form action="{% url 'add_to_cart' item.product.id %}" method="post" class="ajax-add-to-cart flex-grow-1" data-ajax-url="{% url 'ajax_add_to_cart' item.product.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 py-2 fw-bold d-flex align-items-center justify-content-center shadow-none">
+                          <i class="fas fa-cart-plus me-2"></i> Move to Cart
+                        </button>
+                      </form>
+                    {% else %}
+                      <button class="btn btn-secondary btn-sm rounded-pill w-100 py-2 fw-semibold" disabled>
+                        Out of Stock
+                      </button>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class="wishlist-empty-message card border-0 shadow-sm rounded-4 p-5 text-center my-4">
+        <div class="mb-3">
+          <span class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+            <i class="far fa-heart fa-2x text-warning"></i>
+          </span>
+        </div>
+        <h4 class="fw-bold text-dark mb-2">Your Wishlist is Empty</h4>
+        <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+          Explore our store and tap the heart icon on any product to save it for later.
+        </p>
+        <div>
+          <a href="{% url 'shop' %}" class="btn btn-primary rounded-pill px-4 fw-bold">
+            <i class="fas fa-shopping-bag me-2"></i> Start Shopping Now
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
 </section>
 {% endblock %}

@@ -6,12 +6,13 @@ from shop.services import catalog, pagination
 
 
 def search(request):
-    """Search products, optionally narrowed to one category subtree."""
+    """Search products, optionally narrowed to one category subtree and sorted."""
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '')
+    sort_by = request.GET.get('sort', 'relevance')
 
     if query:
-        products = catalog.search_products(query, category_id)
+        products = catalog.search_products(query, category_id, sort_by=sort_by)
     else:
         products = Product.objects.none()
 
@@ -27,5 +28,6 @@ def search(request):
             'products': page_obj.object_list,
             'total_results': paginator.count,
             'selected_category_id': category_id,
+            'current_sort': sort_by,
         },
     )

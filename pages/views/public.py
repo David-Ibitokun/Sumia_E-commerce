@@ -37,3 +37,27 @@ def page500(request):
 
 def page503(request):
     return render(request, 'errors/503.html', status=503)
+
+
+def health_check(request):
+    """Health check endpoint to verify web application and database connectivity."""
+    from django.db import connection
+    from django.http import JsonResponse
+    import time
+
+    status_data = {
+        'status': 'healthy',
+        'timestamp': int(time.time()),
+        'database': 'unknown',
+    }
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+        status_data['database'] = 'connected'
+        return JsonResponse(status_data, status=200)
+    except Exception as e:
+        status_data['status'] = 'unhealthy'
+        status_data['database'] = f'error: {str(e)}'
+        return JsonResponse(status_data, status=503)

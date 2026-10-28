@@ -1,23 +1,31 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Server Error - 500 | Sumia{% endblock %}
+
 {% block content %}
-
-<div style="margin: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center;">
-
-  <div style="background-color: #fff; padding: 40px 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); max-width: 600px;">
-    <h1 style="font-size: 4rem; color: #e74c3c; margin-bottom: 10px;">500</h1>
-    <h2 style="font-size: 1.8rem; color: #2c3e50;">Internal Server Error</h2>
-    <p style="margin-top: 15px; color: #555; font-size: 1rem;">
-      Oops! Something went wrong on our end.<br>
-      Please try refreshing the page or come back later.
-    </p>
-    <a href="/" style="display: inline-block; margin-top: 25px; background-color: #e67e22; color: white; padding: 12px 25px; text-decoration: none; font-size: 1rem; border-radius: 5px;">
-      Back to Home
-    </a>
+<section class="py-5 bg-light d-flex align-items-center" style="min-height: 70vh;">
+  <div class="container text-center py-5">
+    <div class="card border-0 shadow-sm rounded-4 p-5 mx-auto bg-white" style="max-width: 580px;">
+      <div class="mb-3">
+        <span class="rounded-circle bg-danger bg-opacity-10 d-inline-flex align-items-center justify-content-center text-danger" style="width: 100px; height: 100px;">
+          <i class="fas fa-triangle-exclamation fa-3x"></i>
+        </span>
+      </div>
+      <h1 class="display-3 fw-extrabold text-dark mb-2" style="font-weight: 800;">500</h1>
+      <h3 class="fw-bold text-dark mb-2">Internal Server Error</h3>
+      <p class="text-muted mx-auto mb-4" style="max-width: 420px;">
+        Oops! Something unexpected happened on our server. Our team has been notified and is looking into it.
+      </p>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+          <i class="fas fa-home me-2"></i> Back to Homepage
+        </a>
+        <a href="{% url 'contact' %}" class="btn btn-outline-dark rounded-pill px-4 fw-semibold">
+          <i class="fas fa-headset me-2"></i> Contact Support
+        </a>
+      </div>
+    </div>
   </div>
-
-</div>
-
-
+</section>
 {% endblock %}

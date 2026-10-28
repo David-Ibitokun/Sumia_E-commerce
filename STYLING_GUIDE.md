@@ -6,15 +6,15 @@ Your authentication pages (login and register) have been completely redesigned w
 ## Key Features Implemented
 
 ### 🎨 **Visual Design**
-- **Gradient Background**: Purple gradient (667eea to 764ba2) for modern appeal
+- **Gradient Background**: Warm Yellow gradient (#ffc107 → #ff9f43) for modern appeal
 - **Centered Card Layout**: Clean, focused design with floating card effect
 - **Smooth Animations**: Slide-in animations and fade-out effects
-- **Professional Color Scheme**: Primary blue with complementary accents
+- **Professional Color Scheme**: Primary yellow with complementary accents
 
 ### 📱 **Form Styling**
 - **Custom Form Fields**: All inputs use `form-control-custom` class
 - **Icon Integration**: Font Awesome icons in labels and input groups
-- **Focus States**: Blue highlight with subtle shadow on focus
+- **Focus States**: Yellow highlight with subtle shadow on focus
 - **Hover Effects**: Smooth color transitions on hover
 - **Error Styling**: Red borders and feedback text with icons
 
@@ -54,7 +54,7 @@ Your authentication pages (login and register) have been completely redesigned w
 ### 🎯 **CSS Classes Used**
 
 | Class | Purpose |
-|-------|---------|
+|-------|----------|
 | `.auth-container` | Main container with gradient background |
 | `.auth-card` | Card wrapper with shadow and animation |
 | `.auth-card-body` | Padding and content area |
@@ -105,11 +105,11 @@ Your authentication pages (login and register) have been completely redesigned w
 
 ## Color Palette
 
-- **Primary Gradient**: #667eea → #764ba2
-- **Primary Blue**: #007bff
+- **Primary Gradient**: #ffc107 → #ff9f43 (Warm Yellow)
+- **Primary Accent**: #ffc107 (Yellow)
+- **Secondary Blue**: #667eea
 - **Success Green**: #28a745
 - **Danger Red**: #dc3545
-- **Warning Yellow**: #ffc107
 - **Info Cyan**: #17a2b8
 - **Light Background**: #f8f9fa
 - **Dark Text**: #2c3e50

@@ -3,143 +3,130 @@
 {% load humanize %}
 {% load custom_filters %}
 
-{% block title %}Vendor Dashboard - My Products{% endblock %}
+{% block title %}My Product Listings | Sumia Merchant{% endblock %}
 
 {% block content %}
 <section class="py-5 bg-light">
-    <div class="container">
+  <div class="container">
 
-        <!-- Welcome Header -->
-        <div class="mb-5">
-            <p class="text-uppercase text-muted small fw-bold mb-2">Vendor Dashboard</p>
-            <h2 class="fw-bold text-dark display-5 mb-2">Your Product Listings</h2>
-            <p class="lead text-muted mb-0">Manage your product inventory and listings.</p>
+    <!-- Header Banner -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4 bg-white position-relative overflow-hidden" style="border: 1px solid var(--sumia-border) !important;">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-warning text-dark fw-bold text-uppercase px-3 py-1 rounded-pill small">
+              <i class="fas fa-boxes-stacked me-1"></i> Inventory Catalog
+            </span>
+          </div>
+          <h1 class="display-6 fw-bold text-dark mb-2">Your Product Listings</h1>
+          <p class="lead text-muted mb-0" style="font-size: 1.05rem;">
+            Manage prices, stock levels, product status, and add new items to your merchant store.
+          </p>
         </div>
+        <div class="col-md-4 text-md-end mt-4 mt-md-0">
+          <a href="{% url 'add_product' %}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm py-2">
+            <i class="fas fa-plus me-2"></i> Add New Product
+          </a>
+        </div>
+      </div>
+    </div>
 
-        {% include 'vendor/partials/nav.html' %}
+    {% include 'vendor/partials/nav.html' %}
 
-        <!-- Product List Section -->
-        <div class="card shadow-sm border-0 rounded-4 mb-5">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title fw-bold text-dark mb-0">My Product Listings ({{ paginator.count|intcomma }})</h4>
-                    <a href="{% url 'add_product' %}" class="btn btn-sm btn-primary rounded-pill">
-                        <i class="fas fa-plus me-1"></i> Add Product
-                    </a>
+    <!-- Product Grid -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+      <h5 class="fw-bold text-dark mb-0">Total Listed ({{ paginator.count|intcomma }})</h5>
+      <span class="text-muted small">Showing Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+    </div>
+
+    {% if page_obj %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for product in page_obj %}
+          <div class="col">
+            <div class="card h-100 shadow-sm border rounded-4 product-item-card overflow-hidden bg-white position-relative">
+              {% if product.discount_price and product.discount_price < product.price %}
+                <span class="product-badge-discount">
+                  -{{ product.get_discount_percent }}% OFF
+                </span>
+              {% endif %}
+
+              <div class="product-img-wrap">
+                <a href="{% url 'product_detail' product.slug %}" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none">
+                  {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                  {% else %}
+                    <img src="https://placehold.co/400x200/f8fafc/64748b?text=No+Image" alt="No Image">
+                  {% endif %}
+                </a>
+              </div>
+
+              <div class="product-card-body">
+                <div class="product-meta-row">
+                  <span>{{ product.category.name|default:'General' }}</span>
+                  <span class="badge {% if product.is_available and product.stock_quantity > 0 %}bg-success{% else %}bg-danger{% endif %} rounded-pill small">
+                    {% if product.is_available and product.stock_quantity > 0 %}Stock: {{ product.stock_quantity }}{% else %}Out of Stock{% endif %}
+                  </span>
                 </div>
 
-                {% if page_obj %}
-                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                        {% for product in page_obj %}
-                            <div class="col">
-                                <div class="card h-100 shadow-sm border-0 rounded-3 product-item-card">
-                                    <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none">
-                                        {% if product.image %}
-                                            <img src="{{ product.image.url }}" class="card-img-top rounded-top-3 product-img" alt="{{ product.name }}">
-                                        {% else %}
-                                            <img src="https://placehold.co/400x200/cccccc/333333?text=No+Image" class="card-img-top rounded-top-3 product-img" alt="No Image Available">
-                                        {% endif %}
-                                    </a>
-                                    <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title fw-bold text-truncate mb-2">
-                                            <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
-                                        </h5>
-                                        {% if product.brand %}
-                                            <p class="card-text text-muted small mb-1">Brand: {{ product.brand.name }}</p>
-                                        {% endif %}
-                                        {% if product.category %}
-                                            <p class="card-text text-muted small mb-1">Category: {{ product.category.name }}</p>
-                                        {% endif %}
-                                        <p class="card-text mb-2">
-                                            {% if product.discount_price and product.discount_price < product.price %}
-                                                <span class="text-danger fw-bold fs-5">&#8358;{{ product.discount_price|intcomma }}</span>
-                                                <span class="text-muted text-decoration-line-through ms-2">&#8358;{{ product.price|intcomma }}</span>
-                                                <span class="badge bg-success ms-2">{{ product.get_discount_percent }}% OFF</span>
-                                            {% else %}
-                                                <span class="text-primary fw-bold fs-5">&#8358;{{ product.price|intcomma }}</span>
-                                            {% endif %}
-                                        </p>
-                                        
-                                        <div class="d-flex align-items-center mb-3">
-                                            {% if product.is_available and product.stock_quantity > 0 %}
-                                                <span class="badge bg-success me-2 py-2 px-3 rounded-pill">
-                                                    <i class="fas fa-check-circle me-1"></i> In Stock ({{ product.stock_quantity|intcomma }})
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-danger me-2 py-2 px-3 rounded-pill">
-                                                    <i class="fas fa-times-circle me-1"></i> Out of Stock
-                                                </span>
-                                            {% endif %}
-                                        </div>
+                <h6 class="card-title fw-bold mb-2">
+                  <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-dark product-title-link">
+                    {{ product.name }}
+                  </a>
+                </h6>
 
-                                        <small class="text-muted mb-3">Added: {{ product.created_at|date:"M d, Y" }}</small>
+                <div class="product-price-wrap mb-3">
+                  {% if product.discount_price and product.discount_price < product.price %}
+                    <div class="d-flex align-items-baseline">
+                      <span class="product-price-current text-danger">₦{{ product.discount_price|intcomma }}</span>
+                      <span class="product-price-original">₦{{ product.price|intcomma }}</span>
+                    </div>
+                  {% else %}
+                    <span class="product-price-current">₦{{ product.price|intcomma }}</span>
+                  {% endif %}
+                </div>
 
-                                        <div class="mt-auto d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                            <a href="{% url 'product_detail' product.slug %}" class="btn btn-info btn-sm rounded-pill flex-grow-1">
-                                                <i class="fas fa-eye me-1"></i> View Details
-                                            </a>
-                                            <a href="{% url 'edit_product' product.slug %}" class="btn btn-warning btn-sm rounded-pill flex-grow-1">
-                                                <i class="fas fa-edit me-1"></i> Edit
-                                            </a>
-                                            <form action="{% url 'delete_product' product.slug %}" method="post" class="flex-grow-1">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-danger btn-sm rounded-pill w-100">
-                                                    <i class="fas fa-trash-alt me-1"></i> Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% empty %}
-                            <div class="col-12">
-                                <div class="alert alert-info text-center py-4 my-4 rounded-3 shadow-sm" role="alert">
-                                    <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> No Products Found!</h4>
-                                    <p>It looks like you haven't added any products to your store yet.</p>
-                                    <hr>
-                                    <p class="mb-0">Start by clicking the "Add New Product" button above to list your first item.</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    {% include 'partials/paginator.html' %}
-                {% else %}
-                    <div class="alert alert-info text-center py-4 my-4 rounded-3 shadow-sm" role="alert">
-                        <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i> No Products Found!</h4>
-                        <p>It looks like you haven't added any products to your store yet.</p>
-                        <hr>
-                        <p class="mb-0">Start by clicking the "Add New Product" button above to list your first item.</p>
-                    </div>
-                {% endif %}
+                <div class="d-flex gap-2 pt-2 border-top mt-auto">
+                  <a href="{% url 'edit_product' product.slug %}" class="btn btn-warning btn-sm rounded-pill flex-grow-1 fw-bold text-dark">
+                    <i class="fas fa-edit me-1"></i> Edit
+                  </a>
+                  <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline-dark btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="View Live Page">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <form action="{% url 'delete_product' product.slug %}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this product?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="Delete Product">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
             </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="mt-5">
+        {% include 'partials/paginator.html' %}
+      </div>
+    {% else %}
+      <div class="card border-0 shadow-sm rounded-4 p-5 text-center my-4 bg-white">
+        <div class="mb-3">
+          <span class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+            <i class="fas fa-boxes-stacked fa-2x text-muted opacity-50"></i>
+          </span>
         </div>
+        <h4 class="fw-bold text-dark mb-2">No Products in Your Inventory</h4>
+        <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+          Start selling today by listing your first product on the Sumia marketplace.
+        </p>
+        <div>
+          <a href="{% url 'add_product' %}" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+            <i class="fas fa-plus me-2"></i> Add First Product
+          </a>
+        </div>
+      </div>
+    {% endif %}
 
-    </div>
+  </div>
 </section>
-
-<style>
-    /* Custom styles for product cards */
-    .product-item-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
-    .product-item-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    }
-    .product-img {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-    }
-    .card-title a {
-        color: inherit; /* Inherit color from parent for consistency */
-    }
-    .card-title a:hover {
-        color: var(--bs-primary); /* Change color on hover */
-    }
-    /* Ensure delete button fills space if flex-grow-1 is on form */
-    .product-item-card form.flex-grow-1 button {
-        width: 100%;
-    }
-</style>
 {% endblock %}
