@@ -3,7 +3,12 @@
 Authentication lives in the `authentications` app; account specific pages that
 are not part of that flow live in `account.py`.
 """
+import os
+import time
 from django.shortcuts import render
+from django.db import connection
+from django.core.cache import cache
+from django.http import JsonResponse
 
 from shop.services import catalog
 
@@ -40,24 +45,39 @@ def page503(request):
 
 
 def health_check(request):
-    """Health check endpoint to verify web application and database connectivity."""
-    from django.db import connection
-    from django.http import JsonResponse
-    import time
-
+    """Health check endpoint to verify web application, database, and cache connectivity."""
     status_data = {
         'status': 'healthy',
         'timestamp': int(time.time()),
         'database': 'unknown',
+        'cache': 'unknown',
     }
+    is_healthy = True
 
+    # 1. Database check
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
             cursor.fetchone()
         status_data['database'] = 'connected'
-        return JsonResponse(status_data, status=200)
     except Exception as e:
-        status_data['status'] = 'unhealthy'
         status_data['database'] = f'error: {str(e)}'
-        return JsonResponse(status_data, status=503)
+        is_healthy = False
+
+    # 2. Cache check
+    try:
+        cache.set('__health__', 'ok', timeout=10)
+        cached_val = cache.get('__health__')
+        if cached_val == 'ok':
+            status_data['cache'] = 'connected'
+        else:
+            status_data['cache'] = 'degraded'
+    except Exception as e:
+        status_data['cache'] = f'error: {str(e)}'
+        # In development without Redis, cache failure is non-fatal unless in production
+        if os.environ.get('REDIS_URL'):
+            is_healthy = False
+
+    status_data['status'] = 'healthy' if is_healthy else 'unhealthy'
+    status_code = 200 if is_healthy else 503
+    return JsonResponse(status_data, status=status_code)

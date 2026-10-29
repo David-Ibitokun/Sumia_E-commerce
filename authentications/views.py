@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_http_methods
 
 from .forms import ProfileForm, UsersRegistrationForm, CustomAuthenticationForm
 from pages.decorators import customer_required, vendor_required
@@ -35,19 +37,31 @@ def login_user(request):
         return redirect(dashboard_url_for(request.user))
 
     form = CustomAuthenticationForm(request, data=request.POST or None)
+    next_url = request.POST.get('next') or request.GET.get('next', '')
 
     if request.method == 'POST':
         if form.is_valid():
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
+
+            # Validate next URL against allowed hosts to prevent Open Redirect attacks
+            if next_url and url_has_allowed_host_and_scheme(
+                url=next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure()
+            ):
+                return redirect(next_url)
+
             return redirect(dashboard_url_for(user))
         messages.error(request, "Invalid username or password.")
 
-    return render(request, 'accounts/login.html', {'form': form})
+    return render(request, 'accounts/login.html', {'form': form, 'next': next_url})
 
 
+@require_http_methods(['GET', 'POST'])
 def logout_user(request):
+    """Log out the current user. Supports POST (CSRF protected) and GET fallback."""
     logout(request)
     messages.success(request, "You have been logged out successfully.")
     return redirect('login')

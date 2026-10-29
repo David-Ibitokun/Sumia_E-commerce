@@ -90,6 +90,21 @@ class UsersRegistrationForm(UserCreationForm):
             }),
         }
 
+    def clean_email(self):
+        from django.utils.html import strip_tags
+        email = strip_tags(self.cleaned_data.get('email', '')).strip().lower()
+        if UsersRegistration.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('An account with this email address already exists.')
+        return email
+
+    def clean_first_name(self):
+        from django.utils.html import strip_tags
+        return strip_tags(self.cleaned_data.get('first_name', '')).strip()
+
+    def clean_last_name(self):
+        from django.utils.html import strip_tags
+        return strip_tags(self.cleaned_data.get('last_name', '')).strip()
+
 
 class ProfileForm(forms.ModelForm):
     """Profile editing form.
@@ -137,4 +152,19 @@ class ProfileForm(forms.ModelForm):
                 'readonly': True,
             }),
         }
+
+    def clean_email(self):
+        from django.utils.html import strip_tags
+        email = strip_tags(self.cleaned_data.get('email', '')).strip().lower()
+        if UsersRegistration.objects.filter(email__iexact=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError('This email address is already in use by another account.')
+        return email
+
+    def clean_first_name(self):
+        from django.utils.html import strip_tags
+        return strip_tags(self.cleaned_data.get('first_name', '')).strip()
+
+    def clean_last_name(self):
+        from django.utils.html import strip_tags
+        return strip_tags(self.cleaned_data.get('last_name', '')).strip()
 

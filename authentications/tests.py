@@ -216,3 +216,71 @@ class CustomerDashboardFigureTests(TestCase):
         self.assertEqual(response.context['total_spent'], 0)
         self.assertEqual(response.context['cart_count'], 0)
         self.assertEqual(response.context['wishlist_count'], 0)
+
+
+
+class AuthFlowSecurityTests(TestCase):
+    """Verify security best practices across authentication and response headers."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='authuser',
+            email='authuser@example.com',
+            password='ComplexPassword123!',
+            account_type='user',
+        )
+
+    def test_registration_rejects_duplicate_email(self):
+        from authentications.forms import UsersRegistrationForm
+
+        form = UsersRegistrationForm(
+            data={
+                'username': 'newuser',
+                'first_name': 'New',
+                'last_name': 'User',
+                'email': 'authuser@example.com',
+                'account_type': 'user',
+                'agreed_to_terms': True,
+                'password1': 'AnotherPass123!',
+                'password2': 'AnotherPass123!',
+            }
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('email', form.errors)
+        self.assertIn('already exists', str(form.errors['email']))
+
+    def test_login_respects_safe_next_url(self):
+        response = self.client.post(
+            reverse('login') + '?next=/about/',
+            {'username': 'authuser', 'password': 'ComplexPassword123!'},
+        )
+        self.assertRedirects(response, '/about/')
+
+    def test_login_rejects_open_redirect(self):
+        response = self.client.post(
+            reverse('login') + '?next=https://evil.attacker.com/steal',
+            {'username': 'authuser', 'password': 'ComplexPassword123!'},
+        )
+        self.assertRedirects(response, reverse('user_dashboard'))
+
+    def test_logout_via_post_and_get(self):
+        self.client.login(username='authuser', password='ComplexPassword123!')
+        response = self.client.post(reverse('logout'))
+        self.assertRedirects(response, reverse('login'))
+
+        self.client.login(username='authuser', password='ComplexPassword123!')
+        response_get = self.client.get(reverse('logout'))
+        self.assertRedirects(response_get, reverse('login'))
+
+    def test_password_reset_routes_accessible(self):
+        response = self.client.get(reverse('password_reset'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Reset Your Password')
+
+    def test_xss_prevention_security_headers_present(self):
+        response = self.client.get(reverse('home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Content-Security-Policy', response.headers)
+        self.assertIn('default-src', response.headers['Content-Security-Policy'])
+        self.assertEqual(response.headers.get('X-Content-Type-Options'), 'nosniff')
+        self.assertEqual(response.headers.get('X-XSS-Protection'), '1; mode=block')

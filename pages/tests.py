@@ -87,3 +87,20 @@ class WebPConversionTests(TestCase):
         self.assertTrue(gallery.image.name.endswith('.webp'))
         img = Image.open(gallery.image)
         self.assertEqual(img.format, 'WEBP')
+
+
+
+class HealthCheckAndCacheTests(TestCase):
+    def test_health_check_endpoint(self):
+        from django.urls import reverse
+        response = self.client.get(reverse('health_check'))
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'healthy')
+        self.assertEqual(data['database'], 'connected')
+        self.assertIn(data['cache'], ('connected', 'degraded'))
+
+    def test_cache_set_and_get(self):
+        from django.core.cache import cache
+        cache.set('redis_test_ping', 'pong', timeout=10)
+        self.assertEqual(cache.get('redis_test_ping'), 'pong')

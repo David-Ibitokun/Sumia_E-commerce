@@ -7,15 +7,19 @@ services:
       - "8000:8000"
     environment:
       - DJANGO_DEBUG=False
+      - DJANGO_SEED_DB=true
       - DJANGO_SECRET_KEY=dev-secret-key-for-docker-testing-only-change-in-prod
       - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,web
       - DATABASE_URL=postgresql://sumia_user:sumia_pass@db:5432/sumia_db
+      - REDIS_URL=redis://redis:6379/1
       - SECURE_SSL_REDIRECT=False
       - SESSION_COOKIE_SECURE=False
       - CSRF_COOKIE_SECURE=False
       - SECURE_HSTS_SECONDS=0
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   db:
@@ -32,5 +36,19 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 volumes:
   postgres_data:
+  redis_data:

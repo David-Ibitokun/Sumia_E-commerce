@@ -227,6 +227,24 @@ class ReviewForm(forms.ModelForm):
             }),
         }
 
+    def clean_title(self):
+        title = self.cleaned_data.get('title', '')
+        try:
+            import bleach
+            return bleach.clean(title, tags=[], strip=True).strip()
+        except ImportError:
+            from django.utils.html import strip_tags
+            return strip_tags(title).strip()
+
+    def clean_comment(self):
+        comment = self.cleaned_data.get('comment', '')
+        try:
+            import bleach
+            return bleach.clean(comment, tags=[], strip=True).strip()
+        except ImportError:
+            from django.utils.html import strip_tags
+            return strip_tags(comment).strip()
+
 
 class ProductImageForm(forms.ModelForm):
     class Meta:

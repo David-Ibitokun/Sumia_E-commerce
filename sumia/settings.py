@@ -44,6 +44,7 @@ ALLOWED_HOSTS = [
 # These should NOT be conditionally disabled based on DEBUG to ensure production safety
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
 SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() == 'true'
 SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '31536000'))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True').lower() == 'true'
@@ -91,11 +92,14 @@ INSTALLED_APPS = [
     'taggit',
     'django.contrib.humanize',
     'django_select2',
+    'rest_framework',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'sumia.middleware.SecurityHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -170,6 +174,29 @@ else:
         raise ValueError(f'Unsupported database engine: {DB_ENGINE}')
 
 
+# Cache configuration
+# Uses Redis in production/staging if REDIS_URL is configured, falls back to LocMemCache.
+REDIS_URL = os.environ.get('REDIS_URL')
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+            'KEY_PREFIX': 'sumia',
+            'TIMEOUT': 300,
+        }
+    }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'sumia-locmem-cache',
+        }
+    }
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -221,6 +248,23 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Django REST Framework & OpenAPI 3.0 / Swagger UI (drf-spectacular)
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Sumia E-Commerce Platform API',
+    'DESCRIPTION': 'Interactive OpenAPI 3.0 specification and Swagger UI documentation for Sumia e-commerce catalog, shopping, and public services.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': True,
+    },
+}
+
 
 
 JAZZMIN_SETTINGS = {

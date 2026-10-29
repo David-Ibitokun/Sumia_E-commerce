@@ -91,3 +91,33 @@ This backlog tracks the complete roadmap for the Sumia E-Commerce platform acros
 - [x] Search ranking algorithm upgrade with relevance scoring, token matching, and multi-criteria sorting.
 - [x] Live search dropdown redesign with theme matching, keyboard navigation, and dark footer.
 - [x] Mobile Responsiveness & Dark Mode Polish: Fixed vendor pill navigation wrapping, metric cards responsive grid (col-12 col-sm-6), pre-render theme script, and .sumia-cta-banner dark mode styles.
+
+---
+
+## 7. Production Hardening, Authentication Flow & XSS Prevention
+- [x] **Production Deployment Gating**:
+  - [x] Gated `seed_db.py` in [`build.sh`](build.sh) and [`Dockerfile`](Dockerfile) behind explicit `DJANGO_SEED_DB=true` flag to prevent unauthorized demo credentials in production.
+  - [x] Hardened Docker container to run as unprivileged `appuser` (UID 1000) with container `HEALTHCHECK` probe against `/health/`.
+  - [x] Synchronized [`requirements.txt`](requirements.txt) to `Django>=5.2.0,<6.0.0` and added `bleach>=6.1.0`.
+- [x] **Authentication Flow Best Practices**:
+  - [x] **Open Redirect Defense**: Validated post-login `next` destination using `url_has_allowed_host_and_scheme` in [`authentications/views.py`](authentications/views.py) and added hidden input to [`login.html`](templates/accounts/login.html).
+  - [x] **Logout CSRF Protection**: Replaced vulnerable GET logout link in [`base.html`](templates/base.html) with CSRF-tokenized POST form action; updated [`logout_user`](authentications/views.py) to support secure POST with graceful GET fallback.
+  - [x] **Account Collision Prevention**: Added `clean_email()` uniqueness checks to both `UsersRegistrationForm` and `ProfileForm` in [`authentications/forms.py`](authentications/forms.py).
+  - [x] **Self-Service Password Reset**: Configured Django's password reset views and created 5 brand-styled recovery templates in [`templates/accounts/`](templates/accounts/).
+- [x] **Cross-Site Scripting (XSS) Prevention**:
+  - [x] Created [`SecurityHeadersMiddleware`](sumia/middleware.py) injecting `Content-Security-Policy`, `X-XSS-Protection: 1; mode=block`, `X-Content-Type-Options: nosniff`, and `Permissions-Policy`.
+  - [x] Explicitly enforced `SESSION_COOKIE_HTTPONLY = True` to shield session keys from malicious client-side script access.
+  - [x] Integrated `bleach` sanitization in [`shop/forms.py`](shop/forms.py) (`ReviewForm`) to strip executable markup from customer reviews.
+  - [x] Added automated test coverage in [`authentications/tests.py`](authentications/tests.py) (**17/17 passing**).
+- [x] **OpenAPI 3.0 & Swagger UI Integration**:
+  - [x] Added `djangorestframework>=3.15.0` and `drf-spectacular>=0.28.0` to [`requirements.txt`](requirements.txt).
+  - [x] Configured `SPECTACULAR_SETTINGS` in [`sumia/settings.py`](sumia/settings.py).
+  - [x] Implemented OpenAPI schema generator (`/api/schema/`), interactive Swagger UI (`/api/docs/`), and ReDoc (`/api/redoc/`) in [`sumia/urls.py`](sumia/urls.py).
+  - [x] Added REST API serializers, views, and routing for storefront products, categories, and brands in [`shop/api_urls.py`](shop/api_urls.py).
+  - [x] Added automated test coverage in [`shop/test_api.py`](shop/test_api.py) (**7/7 passing**).
+- [x] **Redis Integration for Production Caching & Rate Limiting**:
+  - [x] Added `redis>=5.0.0` to [`requirements.txt`](requirements.txt).
+  - [x] Configured `CACHES` in [`sumia/settings.py`](sumia/settings.py) using `django.core.cache.backends.redis.RedisCache` when `REDIS_URL` is set, with graceful fallback to `LocMemCache`.
+  - [x] Configured `SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'` for Redis session caching with PostgreSQL durability.
+  - [x] Added Redis 7 container service with healthchecks and persistent volume to [`docker-compose.yml`](docker-compose.yml).
+  - [x] Updated [`health_check`](pages/views/public.py) to probe cache connectivity alongside database status.
